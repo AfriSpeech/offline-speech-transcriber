@@ -1,3 +1,25 @@
 __pycache__/
 *.pyc
 transcriptions/
+
+# Admin credentials & secrets
+admin_passcode.txt
+admin_credentials.txt
+*passcode*
+*credential*
+*.secret
+.env
+.env.*
+
+# LEIN Leadership Guides & Posters
+LEIN_*.docx
+*Operational_Guide*
+*Recruitment_Poster*
+*.docx
+
+# Generated packages, caches & artifacts
+generated_packages/
+ingestion_workspace/
+speech-transcriber-app.zip
+*.log
+*.pid
