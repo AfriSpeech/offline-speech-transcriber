@@ -625,14 +625,18 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         state.volunteerCode = window.LEIN_DATA.volunteer_code || state.packageName;
         state.volunteerName = window.LEIN_DATA.volunteer_id || "Volunteer";
 
-        state.clips = window.LEIN_DATA.clips.map(c => ({
-          id: c.clip_id || c.id,
-          filename: c.audio_filename || c.filename,
-          transcript: c.sentence || c.transcript || "",
-          duration: parseFloat(c.duration_seconds || c.duration || 0),
-          status: "pending",
-          audioUrl: "audio/" + (c.audio_filename || c.filename)
-        }));
+        state.clips = window.LEIN_DATA.clips.map(c => {
+          const txt = (c.sentence || c.transcript || "").trim();
+          return {
+            id: c.clip_id || c.id,
+            filename: c.audio_filename || c.filename,
+            transcript: txt,
+            originalTranscript: txt,
+            duration: parseFloat(c.duration_seconds || c.duration || 0),
+            status: "pending",
+            audioUrl: "audio/" + (c.audio_filename || c.filename)
+          };
+        });
 
         restoreProgress();
         finishLoadingAndShow();
@@ -748,10 +752,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         const meta = metaDict[fn] || {};
         const blob = audioBlobs[fn];
         const clipId = meta.clip_id || fn.replace(/\.[^/.]+$/, "");
+        const txt = (meta.sentence || meta.transcript || "").trim();
         return {
           id: clipId,
           filename: fn,
-          transcript: meta.sentence || meta.transcript || "",
+          transcript: txt,
+          originalTranscript: txt,
           duration: parseFloat(meta.duration_seconds || 0),
           status: "pending",
           audioUrl: URL.createObjectURL(blob),
@@ -990,6 +996,18 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       if (!text) {
         alert("Please enter or verify the transcription text before clicking Done.");
         return;
+      }
+
+      // If user made no edits to the pre-filled text, confirm it is already accurate
+      const originalText = (clip.originalTranscript !== undefined ? clip.originalTranscript : "").trim();
+      if (originalText && text === originalText) {
+        const confirmed = confirm(
+          "No changes were recorded for this transcription.\\n\\nConfirm that the text is already completely accurate to skip editing and proceed?"
+        );
+        if (!confirmed) {
+          document.getElementById("transcriptTextarea").focus();
+          return;
+        }
       }
 
       clip.transcript = text;
