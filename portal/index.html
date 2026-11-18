@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Volunteer Registration — LEIN Speech AI</title>
+  <link rel="icon" href="https://leinhub.org/lein-badge.png" type="image/png">
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --surface: #FFFFFF;
+      --surface-subtle: #F9FAFB;
+      --text: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --border-dark: #CBD5E1;
+      --primary: #0F172A;
+      --primary-hover: #1E293B;
+      --accent: #2563EB;
+      --success: #059669;
+      --success-light: #ECFDF5;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 14px;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .nav-link:hover { color: var(--text); }
+
+    main {
+      flex: 1;
+      max-width: 1120px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 56px 24px 80px;
+    }
+
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.95fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    @media (max-width: 920px) {
+      .layout-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      nav { padding: 14px 20px; }
+      main { padding: 36px 16px 60px; }
+    }
+
+    .left-col {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .badge-pill {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      background: #F1F5F9;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      width: fit-content;
+    }
+
+    h1 {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      line-height: 1.18;
+    }
+
+    .hero-lead {
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .perks-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .perk-card {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .perk-icon-wrap {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .perk-heading {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .perk-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .whatsapp-notice {
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      color: #166534;
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+
+    .right-col {
+      position: sticky;
+      top: 32px;
+    }
+
+    .action-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .card-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"], input[type="email"], input[type="tel"], select {
+      width: 100%;
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 15px;
+      border: 1.5px solid var(--border-dark);
+      border-radius: 8px;
+      background: #FFFFFF;
+      outline: none;
+      transition: all 0.15s ease;
+      color: var(--text);
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+      margin-top: 12px;
+    }
+    .btn-submit:hover {
+      background: var(--primary-hover);
+    }
+
+    .returning-user-box {
+      background: #F1F5F9;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      display: none;
+    }
+
+    .result-section {
+      display: none;
+      animation: fadeIn 0.25s ease-in;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .success-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--success-light);
+      color: var(--success);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .download-box {
+      background: var(--surface-subtle);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin: 18px 0;
+    }
+
+    .download-title {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .download-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.45;
+    }
+
+    .btn-download-workspace {
+      background: var(--primary);
+      color: #FFFFFF;
+      text-decoration: none;
+      padding: 13px 22px;
+      border-radius: 8px;
+      font-size: 14.5px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+      transition: background 0.15s ease;
+    }
+    .btn-download-workspace:hover {
+      background: var(--primary-hover);
+    }
+
+    .steps-list {
+      margin: 20px 0 20px 18px;
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .cancel-row {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    .btn-cancel-link {
+      background: none;
+      border: none;
+      color: #991B1B;
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 500;
+      text-decoration: underline;
+      padding: 0;
+    }
+    .btn-cancel-link:hover { color: #DC2626; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      background: #FFFFFF;
+      padding: 24px 40px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Minimal Top Nav -->
+  <nav>
+    <a href="https://leinhub.org" class="brand-link" target="_blank">
+      <img src="https://leinhub.org/lein-badge.png" alt="LEIN Logo" class="brand-logo">
+      <span class="brand-title">Liberian English AI Initiative</span>
+    </a>
+    <div class="nav-links">
+      <a href="https://huggingface.co/datasets/AfriSpeech/liberian-english-speech-packages" class="nav-link" target="_blank">Dataset</a>
+      <a href="mailto:info@africancaribbeannetwork.org" class="nav-link">Contact</a>
+    </div>
+  </nav>
+
+  <!-- Wide Content Canvas (Two-Column Layout) -->
+  <main>
+    <div class="layout-grid">
+
+      <!-- Left Column: Context, Mission, Value Props, Support -->
+      <div class="left-col">
+        <div>
+          <span class="badge-pill">Community Speech Data</span>
+          <h1 style="margin-top: 12px; margin-bottom: 14px;">Help build Liberia's voice AI</h1>
+          <p class="hero-lead">
+            Review everyday speech clips, verify spoken words, and earn an official recommendation letter. The transcription app runs 100% offline on any laptop with zero complex setup.
+          </p>
+        </div>
+
+        <!-- 3 Value Proposition Cards (LEIN Recommendation 1st, Future Opportunities 2nd, Offline 3rd) -->
+        <div class="perks-stack">
+          <div class="perk-card">
+            <div class="perk-icon-wrap">📜</div>
+            <div>
+              <div class="perk-heading">Official LEIN Recommendation Letter</div>
+              <div class="perk-desc">Receive an official signed professional recommendation letter from LEIN leadership to elevate your academic and employment CV.</div>
+            </div>
+          </div>
+
+          <div class="perk-card">
+            <div class="perk-icon-wrap">🚀</div>
+            <div>
+              <div class="perk-heading">Future Paid Project Opportunities</div>
+              <div class="perk-desc">Participating in this voluntary initiative opens the door to priority participation in future speech and AI data projects which will come with compensation.</div>
+            </div>
+          </div>
+
+          <div class="perk-card">
+            <div class="perk-icon-wrap">💻</div>
+            <div>
+              <div class="perk-heading">100% Offline Transcriber</div>
+              <div class="perk-desc">Zero internet needed while working. Double-click <code>index.html</code> on any laptop to transcribe at your own pace.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="whatsapp-notice">
+          💬 <b>WhatsApp Volunteer Support:</b> You will be added to our volunteer WhatsApp group for live technical guidance, questions, and community coordination.
+        </div>
+      </div>
+
+      <!-- Right Column: Clean Action Card -->
+      <div class="right-col">
+        <div class="action-card">
+
+      <!-- Returning Volunteer Banner -->
+      <div class="returning-user-box" id="welcomeBackBox">
+        Welcome back, <b id="welcomeBackName">Volunteer</b>. Your audio package download is ready below.
+      </div>
+
+      <!-- Registration Form View -->
+      <div id="formSection">
+        <div class="card-title">Volunteer Registration</div>
+        <div class="card-subtitle">Enter your details to receive your assigned audio package.</div>
+
+        <div class="form-group">
+          <label for="fullName">Full Name</label>
+          <input type="text" id="fullName" placeholder="e.g. Emmanuel Weah" required>
+        </div>
+
+        <div class="form-group">
+          <label for="emailAddr">Email Address</label>
+          <input type="email" id="emailAddr" placeholder="e.g. emmanuel@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="phoneNum">WhatsApp Phone Number</label>
+          <input type="tel" id="phoneNum" placeholder="e.g. 077 123 4567 or 088 123 4567" required>
+          <div class="hint">Standard Liberian number (Orange or Lonestar MTN). No country code needed.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="hoursSelect">Hours Commitment</label>
+          <select id="hoursSelect">
+            <option value="1">1 Hour Audio</option>
+            <option value="2">2 Hours Audio</option>
+            <option value="3" selected>3 Hours Audio</option>
+            <option value="4">4 Hours Audio</option>
+            <option value="5">5 Hours Audio (Maximum)</option>
+          </select>
+          <div class="hint">Transcribe at your own pace offline. Maximum 5 hours per volunteer.</div>
+        </div>
+
+        <button class="btn-submit" id="submitBtn" onclick="registerVolunteer()">
+          Register
+        </button>
+      </div>
+
+      <!-- Result View -->
+      <div class="result-section" id="resultSection">
+        <div class="success-badge">✓ Registration Confirmed</div>
+        <div class="card-title" style="margin-bottom: 4px;">Offline Package Ready</div>
+        <div class="card-subtitle" style="margin-bottom: 16px;">
+          Welcome, <span id="welcomeSuccessName">Volunteer</span>. Your all-in-one package has been prepared.
+        </div>
+
+        <!-- Single Download Card -->
+        <div class="download-box">
+          <div class="download-title" id="bundleTitle">Download Offline Package (.zip)</div>
+          <div class="download-desc">
+            Contains both your assigned audio files and the offline transcriber app (<code>index.html</code>) in one single bundle.
+          </div>
+          <a class="btn-download-workspace" id="bundleDownloadLink" href="#" target="_blank">
+            ⬇️ Download Offline Package (.zip)
+          </a>
+        </div>
+
+        <!-- Steps -->
+        <div style="font-weight: 700; font-size: 13.5px; color: var(--text);">How to Transcribe:</div>
+        <ol class="steps-list">
+          <li>Extract the downloaded <code>.zip</code> file onto your laptop.</li>
+          <li>Open <b><code>README.pdf</code></b> for a quick visual overview.</li>
+          <li>Double-click <b><code>index.html</code></b>. Your audio clips are already loaded and ready to play!</li>
+          <li>Listen (press <code>Tab</code>) and edit text. Click <b><code>[✓ Done]</code></b> to advance.</li>
+          <li>When finished, click <b>"Export Submission (.ZIP)"</b> and email your file to <b><code>info@africancaribbeannetwork.org</code></b>.</li>
+        </ol>
+
+        <!-- Cancellation Link -->
+        <div class="cancel-row">
+          <span>Need to cancel?</span>
+          <button class="btn-cancel-link" onclick="cancelCommitment()">Cancel Registration</button>
+        </div>
+      </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    Liberian English AI Initiative (LEIN) × African & Caribbean Network
+  </footer>
+
+  <script>
+    const PACKAGES_REPO = "AfriSpeech/liberian-english-speech-packages";
+    const REGISTRY_REPO = "AfriSpeech/liberian-english-volunteer-registry";
+    const BASE_BUNDLE_URL = `https://huggingface.co/datasets/${PACKAGES_REPO}/resolve/main/bundles`;
+    const ENCRYPTION_KEY = 0x5A;
+
+    const _T = (function() {
+      const b64 = "VFpjWEZvb1N/f3pXU0p/W09vdnZvW0pMWGVaZlBfW3BmWnJ4Wg==";
+      const bin = atob(b64);
+      let t = "";
+      for (let i = 0; i < bin.length; i++) {
+        t += String.fromCharCode(bin.charCodeAt(i) ^ 0x3C);
+      }
+      return t;
+    })();
+
+    let currentSessionData = null;
+
+    window.addEventListener("DOMContentLoaded", () => {
+      checkExistingSession();
+    });
+
+    function checkExistingSession() {
+      const raw = localStorage.getItem("lein_volunteer_session");
+      if (!raw) return;
+      try {
+        const session = JSON.parse(raw);
+        if (session && session.name) {
+          currentSessionData = session;
+          displayReturningUser(session);
+        }
+      } catch (e) {
+        console.warn("Session restore error", e);
+      }
+    }
+
+    function displayReturningUser(session) {
+      document.getElementById("formSection").style.display = "none";
+      document.getElementById("welcomeBackBox").style.display = "block";
+      document.getElementById("welcomeBackName").textContent = session.name;
+      document.getElementById("welcomeSuccessName").textContent = session.name;
+
+      renderResultsUI(
+        session.raw_phone || session.phone,
+        session.bundle_file,
+        session.hours || 3
+      );
+    }
+
+    function normalizeLiberianPhone(phone) {
+      let digits = phone.replace(/\D/g, "");
+      if (digits.startsWith("231")) return "+" + digits;
+      if (digits.startsWith("0")) digits = digits.substring(1);
+      return "+231" + digits;
+    }
+
+    function encodeRecord(obj) {
+      const jsonStr = JSON.stringify(obj);
+      let masked = "";
+      for (let i = 0; i < jsonStr.length; i++) {
+        masked += String.fromCharCode(jsonStr.charCodeAt(i) ^ ENCRYPTION_KEY);
+      }
+      return btoa(unescape(encodeURIComponent(masked)))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+    }
+
+    async function registerVolunteer() {
+      const name = document.getElementById("fullName").value.trim();
+      const email = document.getElementById("emailAddr").value.trim().toLowerCase();
+      const rawPhone = document.getElementById("phoneNum").value.trim();
+      const hours = parseInt(document.getElementById("hoursSelect").value, 10);
+
+      if (!name || !email || !rawPhone) {
+        alert("Please fill in your name, email, and phone number.");
+        return;
+      }
+
+      const cleanPhone = normalizeLiberianPhone(rawPhone);
+      const btn = document.getElementById("submitBtn");
+      btn.textContent = "Registering...";
+      btn.disabled = true;
+
+      try {
+        let assignments = {};
+        try {
+          const aResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/assignments.json?cb=` + Date.now());
+          assignments = await aResp.json();
+        } catch (e) {}
+
+        const candidatePools = [];
+        for (let v = 1; v <= 20; v++) {
+          const vStr = String(v).padStart(2, '0');
+          const bundleSlug = `volunteer_${vStr}_${hours}hrs.zip`;
+          const count = assignments[bundleSlug] || 0;
+          candidatePools.push({ slug: bundleSlug, count: count });
+        }
+
+        candidatePools.sort((a, b) => a.count - b.count);
+        const chosenBundle = candidatePools[0].slug;
+
+        assignments[chosenBundle] = (assignments[chosenBundle] || 0) + 1;
+
+        const payload = {
+          name: name,
+          email: email,
+          phone: cleanPhone,
+          hours: hours,
+          bundle: chosenBundle,
+          ts: Math.floor(Date.now() / 1000)
+        };
+        const volunteerCode = "LEIN-" + encodeRecord(payload);
+
+        const regRecord = {
+          name: name,
+          email: email,
+          phone: cleanPhone,
+          raw_phone: rawPhone,
+          hours: hours,
+          volunteer_code: volunteerCode,
+          bundle_file: chosenBundle,
+          status: "active",
+          timestamp: new Date().toISOString()
+        };
+
+        const encodedLine = encodeRecord(regRecord) + "\n";
+        let curText = "";
+        try {
+          const rResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/registrations_encoded.jsonl?cb=` + Date.now());
+          curText = await rResp.text();
+        } catch (e) {}
+
+        const newText = curText + encodedLine;
+
+        const commitPayload = {
+          summary: `Register volunteer: ${name} (${hours} hrs)`,
+          operations: [
+            {
+              key: "file",
+              value: {
+                path: "registrations_encoded.jsonl",
+                content: btoa(unescape(encodeURIComponent(newText))),
+                encoding: "base64"
+              }
+            },
+            {
+              key: "file",
+              value: {
+                path: "assignments.json",
+                content: btoa(unescape(encodeURIComponent(JSON.stringify(assignments, null, 2)))),
+                encoding: "base64"
+              }
+            }
+          ]
+        };
+
+        await fetch(`https://huggingface.co/api/datasets/${REGISTRY_REPO}/commit/main`, {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + _T,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(commitPayload)
+        });
+
+        currentSessionData = regRecord;
+        localStorage.setItem("lein_volunteer_session", JSON.stringify(regRecord));
+
+        document.getElementById("welcomeSuccessName").textContent = name;
+        renderResultsUI(rawPhone, chosenBundle, hours);
+        btn.textContent = "Offline Package Ready";
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById("resultSection").style.display = "block";
+        btn.textContent = "Offline Package Ready";
+      }
+    }
+
+    function renderResultsUI(rawPhone, bundleFile, hours) {
+      document.getElementById("bundleTitle").textContent = `${hours}-Hour Offline Package (${bundleFile})`;
+      
+      const downloadUrl = `${BASE_BUNDLE_URL}/${bundleFile}`;
+      const dlLink = document.getElementById("bundleDownloadLink");
+      dlLink.href = downloadUrl;
+
+      document.getElementById("formSection").style.display = "none";
+      document.getElementById("resultSection").style.display = "block";
+    }
+
+    async function cancelCommitment() {
+      if (!currentSessionData) return;
+
+      const ok = confirm("Are you sure you want to cancel your registration?");
+      if (!ok) return;
+
+      try {
+        let assignments = {};
+        try {
+          const aResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/assignments.json?cb=` + Date.now());
+          assignments = await aResp.json();
+        } catch (e) {}
+
+        const bundle = currentSessionData.bundle_file;
+        if (assignments[bundle] && assignments[bundle] > 0) {
+          assignments[bundle] -= 1;
+        }
+
+        const cancelRecord = {
+          ...currentSessionData,
+          status: "cancelled",
+          cancelled_at: new Date().toISOString()
+        };
+        const encodedLine = encodeRecord(cancelRecord) + "\n";
+
+        let curText = "";
+        try {
+          const rResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/registrations_encoded.jsonl?cb=` + Date.now());
+          curText = await rResp.text();
+        } catch (e) {}
+
+        const newText = curText + encodedLine;
+
+        const commitPayload = {
+          summary: `Cancel registration: ${currentSessionData.name} (released ${bundle})`,
+          operations: [
+            {
+              key: "file",
+              value: {
+                path: "registrations_encoded.jsonl",
+                content: btoa(unescape(encodeURIComponent(newText))),
+                encoding: "base64"
+              }
+            },
+            {
+              key: "file",
+              value: {
+                path: "assignments.json",
+                content: btoa(unescape(encodeURIComponent(JSON.stringify(assignments, null, 2)))),
+                encoding: "base64"
+              }
+            }
+          ]
+        };
+
+        await fetch(`https://huggingface.co/api/datasets/${REGISTRY_REPO}/commit/main`, {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + _T,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(commitPayload)
+        });
+
+        localStorage.removeItem("lein_volunteer_session");
+        currentSessionData = null;
+
+        alert("Your registration has been cancelled.");
+        location.reload();
+
+      } catch (err) {
+        console.error(err);
+        localStorage.removeItem("lein_volunteer_session");
+        location.reload();
+      }
+    }
+  </script>
+</body>
+</html>

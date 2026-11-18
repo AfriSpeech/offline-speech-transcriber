@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEIN Volunteer Dashboard (Passcode Protected)</title>
+  <style>
+    :root {
+      --primary: #107C41;
+      --primary-dark: #0B5A2F;
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --border: #E2E8F0;
+      --text: #0F172A;
+      --text-muted: #64748B;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    /* Passcode Lock Screen */
+    .lock-screen {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .lock-card {
+      background: #FFFFFF;
+      width: 90%;
+      max-width: 400px;
+      padding: 30px 24px;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      text-align: center;
+    }
+    .lock-icon {
+      font-size: 42px;
+      margin-bottom: 12px;
+    }
+    .lock-card h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 6px;
+    }
+    .lock-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .passcode-input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      text-align: center;
+      letter-spacing: 2px;
+      outline: none;
+      margin-bottom: 14px;
+    }
+    .passcode-input:focus {
+      border-color: var(--primary);
+    }
+    .lock-error {
+      color: #DC2626;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* Main Dashboard Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      background: var(--primary);
+      color: #fff;
+      font-weight: bold;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { background: var(--primary-dark); }
+    .btn-secondary {
+      background: #FFFFFF;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: #F1F5F9; }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .stat-num {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary);
+      margin-top: 4px;
+    }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* Table Container */
+    .table-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .table-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    input.search-box {
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      width: 280px;
+      outline: none;
+    }
+    input.search-box:focus {
+      border-color: var(--primary);
+    }
+    .table-responsive {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 900px;
+    }
+    th {
+      background: #F8FAFC;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tr:hover { background: #F8FAFC; }
+
+    .phone-chip {
+      font-family: monospace;
+      font-weight: bold;
+      color: #0369A1;
+      margin-right: 6px;
+    }
+    .btn-wa {
+      display: inline-flex;
+      align-items: center;
+      background: #25D366;
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      text-decoration: none;
+      font-weight: 600;
+      gap: 4px;
+    }
+    .btn-wa:hover { background: #1EBE5D; }
+    .days-badge {
+      background: #E0F2FE;
+      color: #0369A1;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .pkg-chip {
+      background: #F1F5F9;
+      color: #475569;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: monospace;
+      display: inline-block;
+      margin: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Passcode Protection Screen -->
+  <div class="lock-screen" id="lockScreen">
+    <div class="lock-card">
+      <div class="lock-icon">🔒</div>
+      <h2>LEIN Executive Dashboard</h2>
+      <p>This dashboard is passcode-protected. Enter the administrator passcode to unlock volunteer registration records.</p>
+      <form onsubmit="event.preventDefault(); verifyPasscode();">
+        <input type="password" id="passcodeInput" class="passcode-input" placeholder="Enter Passcode" autofocus required>
+        <button type="submit" class="btn" style="width: 100%; justify-content: center; padding: 12px;">
+          Unlock Dashboard
+        </button>
+      </form>
+      <div class="lock-error" id="lockError">Incorrect passcode. Please try again.</div>
+    </div>
+  </div>
+
+  <!-- Main Executive Dashboard Content (Hidden until unlocked) -->
+  <div id="dashboardContent" style="display: none;">
+    <div class="header">
+      <div class="brand">
+        <div class="brand-icon">L</div>
+        <div>
+          <h2 style="font-size:18px;">LEIN Volunteer Registration Dashboard</h2>
+          <p style="font-size:12px; color:var(--text-muted);">Decoded registry records from AfriSpeech/liberian-english-volunteer-registry</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-secondary" onclick="fetchAndRenderData()">🔄 Refresh</button>
+        <button class="btn" onclick="exportCSV()">📥 Download Volunteers (.CSV)</button>
+        <button class="btn btn-secondary" onclick="lockDashboard()" title="Lock dashboard">🔒 Lock</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Volunteers</div>
+        <div class="stat-num" id="statVolunteers">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Committed Work Days</div>
+        <div class="stat-num" id="statDays">0 days</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Committed Audio</div>
+        <div class="stat-num" id="statHours">0.0 hrs</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Compensation ($5/hr)</div>
+        <div class="stat-num" id="statCompensation">$0.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Package Pool Coverage</div>
+        <div class="stat-num" id="statCoverage">0 / 193</div>
+        <div style="font-size:11px; color:var(--text-muted); margin-top:2px;" id="statRepeats">(2x: 0)</div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <span style="font-weight:700; font-size:14px;" id="tableCountLabel">Volunteers (0)</span>
+        <input type="text" id="searchBox" class="search-box" placeholder="Search name, email, phone..." oninput="filterTable()">
+      </div>
+      <div class="table-responsive">
+        <table id="volTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Volunteer Name</th>
+              <th>Email Address</th>
+              <th>Phone (WhatsApp)</th>
+              <th>Commitment</th>
+              <th>Est. Payout ($)</th>
+              <th>Assigned Day Batches</th>
+              <th>Volunteer Code</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Dynamic rows rendered here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Administrator Passcode
+    const PASSCODE_SHA256 = "1b402d5132842fb59bf4f81971e115b57b9fe647157c1a3c06f0e9bad65c5404";
+
+    async function sha256(str) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    const REGISTRY_RAW_URL = "https://huggingface.co/datasets/AfriSpeech/liberian-english-volunteer-registry/raw/main/registrations_encoded.jsonl";
+    const ASSIGNMENTS_RAW_URL = "https://huggingface.co/datasets/AfriSpeech/liberian-english-volunteer-registry/raw/main/assignments.json";
+    const ENCRYPTION_KEY = 0x5A;
+
+    let volunteerRecords = [];
+
+    // Check if previously unlocked in this browser session
+    window.addEventListener("DOMContentLoaded", () => {
+      if (sessionStorage.getItem("lein_admin_unlocked") === "true") {
+        unlockDashboard();
+      }
+    });
+
+    async function verifyPasscode() {
+      const entered = document.getElementById("passcodeInput").value.trim();
+      const hash = await sha256(entered);
+      if (hash === PASSCODE_SHA256) {
+        sessionStorage.setItem("lein_admin_unlocked", "true");
+        unlockDashboard();
+      } else {
+        document.getElementById("lockError").style.display = "block";
+        document.getElementById("passcodeInput").value = "";
+        document.getElementById("passcodeInput").focus();
+      }
+    }
+
+    function unlockDashboard() {
+      document.getElementById("lockScreen").style.display = "none";
+      document.getElementById("dashboardContent").style.display = "block";
+      fetchAndRenderData();
+    }
+
+    function lockDashboard() {
+      sessionStorage.removeItem("lein_admin_unlocked");
+      document.getElementById("dashboardContent").style.display = "none";
+      document.getElementById("lockScreen").style.display = "flex";
+      document.getElementById("passcodeInput").value = "";
+      document.getElementById("lockError").style.display = "none";
+    }
+
+    function decodeRecord(b64Str) {
+      try {
+        let clean = b64Str.trim().replace(/-/g, '+').replace(/_/g, '/');
+        while (clean.length % 4 !== 0) clean += '=';
+        const masked = atob(clean);
+        let raw = "";
+        for (let i = 0; i < masked.length; i++) {
+          raw += String.fromCharCode(masked.charCodeAt(i) ^ ENCRYPTION_KEY);
+        }
+        return JSON.parse(raw);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function fetchAndRenderData() {
+      try {
+        // Fetch encoded lines from dataset repo
+        const resp = await fetch(REGISTRY_RAW_URL + "?cache_bust=" + Date.now());
+        const text = await resp.text();
+        const lines = text.split("\n");
+        const parsed = [];
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          const rec = decodeRecord(line);
+          if (rec && rec.name) {
+            parsed.push(rec);
+          }
+        }
+
+        // Sort newest first
+        parsed.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
+        volunteerRecords = parsed;
+
+        // Fetch assignment counts
+        let assignmentCounts = {};
+        try {
+          const aResp = await fetch(ASSIGNMENTS_RAW_URL + "?cache_bust=" + Date.now());
+          assignmentCounts = await aResp.json();
+        } catch (e) {}
+
+        renderStats(parsed, assignmentCounts);
+        renderTable(parsed);
+      } catch (err) {
+        console.error(err);
+        alert("Error loading registration data from registry: " + err.message);
+      }
+    }
+
+    function renderStats(records, counts) {
+      const totalVols = records.length;
+      const totalDays = records.reduce((acc, r) => acc + (r.days || 0), 0);
+      const totalHours = records.reduce((acc, r) => acc + (r.est_hours || 0), 0);
+      const totalComp = records.reduce((acc, r) => acc + (r.est_compensation_usd || 0), 0);
+
+      document.getElementById("statVolunteers").textContent = totalVols;
+      document.getElementById("statDays").textContent = `${totalDays} days`;
+      document.getElementById("statHours").textContent = `~${totalHours.toFixed(1)} hrs`;
+      document.getElementById("statCompensation").textContent = `$${totalComp.toFixed(2)}`;
+      document.getElementById("tableCountLabel").textContent = `Registered Volunteers (${totalVols})`;
+
+      const assignedOnce = Object.values(counts).filter(c => c >= 1).length;
+      const assignedTwice = Object.values(counts).filter(c => c >= 2).length;
+      document.getElementById("statCoverage").textContent = `${assignedOnce} / 193`;
+      document.getElementById("statRepeats").textContent = `(2x assigned: ${assignedTwice})`;
+    }
+
+    function renderTable(records) {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+
+      if (records.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='8' style='text-align:center; padding:30px; color:#64748B;'>No volunteer registrations yet. Once people sign up on the portal, they will appear here live!</td></tr>";
+        return;
+      }
+
+      records.forEach(r => {
+        const tr = document.createElement("tr");
+        const rawPhone = r.phone || "";
+        const cleanPhone = rawPhone.replace(/[^\d+]/g, "");
+        const waLink = cleanPhone ? `https://wa.me/${cleanPhone.replace('+', '')}` : "#";
+
+        const pkgs = r.assigned_packages || [];
+        const pkgsHtml = Array.isArray(pkgs)
+          ? pkgs.map(p => `<span class="pkg-chip">${p.replace('.zip', '')}</span>`).join(" ")
+          : pkgs;
+
+        const dateStr = (r.timestamp || "").split("T")[0] || r.timestamp;
+        const code = r.volunteer_code || "";
+        const shortCode = code.length > 20 ? code.slice(0, 18) + "..." : code;
+
+        tr.innerHTML = `
+          <td>${dateStr}</td>
+          <td><b>${escapeHtml(r.name)}</b></td>
+          <td><a href="mailto:${escapeHtml(r.email)}">${escapeHtml(r.email)}</a></td>
+          <td>
+            <span class="phone-chip">${escapeHtml(rawPhone)}</span>
+            <a href="${waLink}" target="_blank" class="btn-wa">💬 WhatsApp</a>
+          </td>
+          <td><span class="days-badge">${r.days} Days (~${r.est_hours}h)</span></td>
+          <td><b style="color:var(--primary);">$${(r.est_compensation_usd || 0).toFixed(2)}</b></td>
+          <td>${pkgsHtml}</td>
+          <td title="${escapeHtml(code)}"><code style="font-size:11px;">${escapeHtml(shortCode)}</code></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterTable() {
+      const query = document.getElementById("searchBox").value.toLowerCase();
+      const rows = document.querySelectorAll("#volTable tbody tr");
+      rows.forEach(r => {
+        const text = r.textContent.toLowerCase();
+        r.style.display = text.includes(query) ? "" : "none";
+      });
+    }
+
+    function exportCSV() {
+      if (volunteerRecords.length === 0) {
+        alert("No records to export.");
+        return;
+      }
+      const keys = ["timestamp", "name", "email", "phone", "days", "est_hours", "est_compensation_usd", "assigned_packages", "volunteer_code"];
+      let csvContent = "\uFEFF" + keys.join(",") + "\n";
+      volunteerRecords.forEach(r => {
+        const line = keys.map(k => {
+          let val = r[k] || "";
+          if (Array.isArray(val)) val = val.join("; ");
+          return `"${String(val).replace(/"/g, '""')}"`;
+        }).join(",");
+        csvContent += line + "\n";
+      });
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `lein_volunteers_${new Date().toISOString().split("T")[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+  </script>
+</body>
+</html>

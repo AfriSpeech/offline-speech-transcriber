@@ -1,0 +1,38 @@
+{
+  "project": {
+    "name": "Speech AI Volunteer Initiative",
+    "short_name": "Voice Studio",
+    "tagline": "Community-Driven Speech Data Collection & Verification",
+    "language": "English",
+    "language_code": "en",
+    "target_hours": 160
+  },
+  "organization": {
+    "name": "Your Organization Name",
+    "short_name": "YourOrg",
+    "website": "https://yourorg.org",
+    "partner_name": "Partner Organization",
+    "contact_email": "submissions@yourorg.org",
+    "logo_url": "https://yourorg.org/logo.png"
+  },
+  "huggingface": {
+    "source_audio_dataset": "YourOrg/raw-speech-audio",
+    "packages_dataset": "YourOrg/speech-transcription-packages",
+    "registry_dataset": "YourOrg/volunteer-registry",
+    "training_dataset": "YourOrg/verified-speech-dataset",
+    "signup_space": "YourOrg/volunteer-signup",
+    "dashboard_space": "YourOrg/volunteer-dashboard"
+  },
+  "workflow": {
+    "max_hours_per_volunteer": 5,
+    "batch_duration_minutes": 50.0,
+    "audio_sample_rate": 16000,
+    "audio_channels": 1,
+    "audio_bitrate": "32k",
+    "short_url": "https://bit.ly/your-signup"
+  },
+  "admin": {
+    "dashboard_passcode": "YourStrongPasscode2026!",
+    "dashboard_passcode_sha256": "YOUR_SHA256_HASH_HERE"
+  }
+}
