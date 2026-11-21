@@ -19,7 +19,10 @@ LEIN_*.docx
 
 # Generated packages, caches & artifacts
 generated_packages/
+recorder-packages/
 ingestion_workspace/
 speech-transcriber-app.zip
+kolokwa_prompts.json
+*.wav
 *.log
 *.pid
