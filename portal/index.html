@@ -509,7 +509,7 @@
           <div class="download-desc">
             Contains both your assigned audio files and the offline transcriber app (<code>index.html</code>) in one single bundle.
           </div>
-          <a class="btn-download-workspace" id="bundleDownloadLink" href="#" target="_blank">
+          <a class="btn-download-workspace" id="bundleDownloadLink" href="https://huggingface.co/datasets/AfriSpeech/liberian-english-speech-packages/resolve/main/packages/volunteer_01/bundle_volunteer_01_3hrs.zip" target="_blank" download>
             ⬇️ Download Offline Package (.zip)
           </a>
         </div>
@@ -630,11 +630,15 @@
       btn.textContent = "Registering...";
       btn.disabled = true;
 
+      let chosenBundle = `volunteer_${String(Math.floor(Math.random() * 20) + 1).padStart(2, '0')}_${hours}hrs.zip`;
+
       try {
         let assignments = {};
         try {
           const aResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/assignments.json?cb=` + Date.now(), { headers: { "Authorization": "Bearer " + _T } });
-          assignments = await aResp.json();
+          if (aResp.ok) {
+            assignments = await aResp.json();
+          }
         } catch (e) {}
 
         const candidatePools = [];
@@ -646,9 +650,15 @@
         }
 
         candidatePools.sort((a, b) => a.count - b.count);
-        const chosenBundle = candidatePools[0].slug;
+        if (candidatePools.length > 0 && candidatePools[0].slug) {
+          chosenBundle = candidatePools[0].slug;
+        }
 
         assignments[chosenBundle] = (assignments[chosenBundle] || 0) + 1;
+
+        // IMMEDIATELY render download UI with real URL so user is never stuck
+        document.getElementById("welcomeSuccessName").textContent = name;
+        renderResultsUI(rawPhone, chosenBundle, hours);
 
         const payload = {
           name: name,
@@ -674,11 +684,16 @@
           timestamp: new Date().toISOString()
         };
 
+        currentSessionData = regRecord;
+        localStorage.setItem("lein_volunteer_session", JSON.stringify(regRecord));
+
         const encodedLine = encodeRecord(regRecord) + "\n";
         let curText = "";
         try {
           const rResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/registrations_encoded.jsonl?cb=` + Date.now(), { headers: { "Authorization": "Bearer " + _T } });
-          curText = await rResp.text();
+          if (rResp.ok) {
+            curText = await rResp.text();
+          }
         } catch (e) {}
 
         const newText = curText + encodedLine;
@@ -714,17 +729,11 @@
           body: JSON.stringify(commitPayload)
         });
 
-        currentSessionData = regRecord;
-        localStorage.setItem("lein_volunteer_session", JSON.stringify(regRecord));
-
+      } catch (err) {
+        console.warn("Background registry commit notice:", err);
+        // Ensure UI is definitely rendered with assigned bundle
         document.getElementById("welcomeSuccessName").textContent = name;
         renderResultsUI(rawPhone, chosenBundle, hours);
-        btn.textContent = "Offline Package Ready";
-
-      } catch (err) {
-        console.error(err);
-        document.getElementById("resultSection").style.display = "block";
-        btn.textContent = "Offline Package Ready";
       }
     }
 
