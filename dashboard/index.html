@@ -3,73 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LEIN Executive Dashboard — Uploads & Volunteers</title>
+  <title>LEIN Executive Dashboard — Transcription & Voice Recording</title>
   <link rel="icon" href="https://leinhub.org/lein-badge.png" type="image/png">
   <style>
     :root {
-      --primary: #107C41;
-      --primary-dark: #0B5A2F;
       --bg: #F8FAFC;
-      --card: #FFFFFF;
-      --border: #E2E8F0;
+      --surface: #FFFFFF;
+      --brand: #07254B;
+      --brand-hover: #0F376A;
+      --accent: #2563EB;
       --text: #0F172A;
       --text-muted: #64748B;
-      --accent: #2563EB;
+      --border: #E2E8F0;
+      --green: #10B981;
+      --green-light: #ECFDF5;
+      --purple: #7E22CE;
+      --purple-light: #FAF5FF;
+      --blue: #1D4ED8;
+      --blue-light: #EFF6FF;
+      --radius: 12px;
+      --radius-sm: 8px;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding: 24px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     /* Passcode Lock Screen */
     .lock-screen {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(4px);
+      inset: 0;
+      background: #0F172A;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 1000;
+      z-index: 9999;
+      padding: 20px;
     }
     .lock-card {
       background: #FFFFFF;
-      width: 90%;
-      max-width: 400px;
-      padding: 30px 24px;
-      border-radius: 12px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      max-width: 440px;
+      width: 100%;
       text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
-    .lock-icon { font-size: 42px; margin-bottom: 12px; }
-    .lock-card h2 { font-size: 18px; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
-    .lock-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+    .lock-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+    .lock-card h2 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--brand);
+      margin-bottom: 6px;
+    }
+    .lock-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
     .passcode-input {
       width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      border: 1.5px solid var(--border);
-      border-radius: 6px;
-      text-align: center;
-      letter-spacing: 2px;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
       outline: none;
-      margin-bottom: 14px;
+      transition: border 0.15s ease;
+      text-align: center;
     }
-    .passcode-input:focus { border-color: var(--primary); }
-    .lock-error { color: #DC2626; font-size: 12px; font-weight: 600; margin-top: 8px; display: none; }
+    .passcode-input:focus { border-color: var(--accent); }
+    .lock-error {
+      color: #DC2626;
+      font-size: 12.5px;
+      font-weight: 600;
+      margin-top: 10px;
+      display: none;
+    }
 
-    /* Main Dashboard Header */
+    /* App Header */
     .header {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 14px;
+      justify-content: space-between;
     }
     .brand {
       display: flex;
@@ -77,186 +110,246 @@
       gap: 12px;
     }
     .brand-icon {
-      background: var(--primary);
-      color: #fff;
-      font-weight: bold;
-      width: 38px;
-      height: 38px;
+      width: 36px;
+      height: 36px;
+      background: var(--brand);
+      color: #FFFFFF;
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-weight: 800;
+      font-size: 16px;
     }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      background: var(--primary);
-      color: #fff;
-      border-radius: 6px;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .btn:hover { background: var(--primary-dark); }
-    .btn-secondary {
-      background: #FFFFFF;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-secondary:hover { background: #F1F5F9; }
 
-    /* Top Tabs */
+    /* Nav Tabs */
     .dashboard-tabs {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
       display: flex;
       gap: 8px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid var(--border);
-      padding-bottom: 2px;
     }
     .dash-tab {
-      padding: 10px 20px;
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--text-muted);
-      background: none;
+      padding: 14px 20px;
       border: none;
-      border-bottom: 3px solid transparent;
+      background: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
       cursor: pointer;
-      display: inline-flex;
+      position: relative;
+      transition: color 0.15s ease;
+      display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: -2px;
-      transition: all 0.15s ease;
     }
     .dash-tab:hover { color: var(--text); }
     .dash-tab.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
+      color: var(--brand);
+      font-weight: 700;
+    }
+    .dash-tab.active::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--brand);
+      border-radius: 3px 3px 0 0;
     }
 
     /* Stats Grid */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 14px;
-      margin-bottom: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      padding: 24px 32px;
     }
     .stat-card {
-      background: var(--card);
+      background: #FFFFFF;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-    }
-    .stat-num {
-      font-size: 24px;
-      font-weight: 800;
-      color: var(--primary);
-      margin-top: 4px;
+      border-radius: var(--radius-sm);
+      padding: 18px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
     .stat-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
       text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .stat-num {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--brand);
+    }
+    .stat-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
     }
 
     /* Table Container */
     .table-card {
-      background: var(--card);
+      background: #FFFFFF;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: var(--radius-sm);
+      margin: 0 32px 32px 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
     .table-header {
-      padding: 14px 18px;
+      padding: 16px 20px;
       border-bottom: 1px solid var(--border);
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: space-between;
+      gap: 16px;
       flex-wrap: wrap;
-      gap: 10px;
     }
-    input.search-box {
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+    }
+    .filter-pill {
+      border: 1px solid var(--border);
+      background: #F8FAFC;
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .filter-pill:hover { background: #E2E8F0; color: var(--text); }
+    .filter-pill.active {
+      background: var(--brand);
+      color: #FFFFFF;
+      border-color: var(--brand);
+    }
+
+    .search-box {
       padding: 8px 14px;
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       font-size: 13px;
-      width: 280px;
+      width: 260px;
       outline: none;
     }
-    input.search-box:focus { border-color: var(--primary); }
-    .table-responsive { overflow-x: auto; }
+    .search-box:focus { border-color: var(--accent); }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
+      text-align: left;
       font-size: 13px;
-      min-width: 900px;
     }
     th {
       background: #F8FAFC;
-      padding: 10px 14px;
-      text-align: left;
+      padding: 10px 16px;
       font-weight: 600;
       color: var(--text-muted);
       border-bottom: 1px solid var(--border);
+      white-space: nowrap;
     }
     td {
-      padding: 12px 14px;
+      padding: 12px 16px;
       border-bottom: 1px solid var(--border);
+      color: var(--text);
       vertical-align: middle;
     }
-    tr:hover { background: #F8FAFC; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #FAFAFA; }
 
-    .phone-chip {
-      font-family: monospace;
-      font-weight: bold;
-      color: #0369A1;
-      margin-right: 6px;
-    }
-    .btn-wa {
+    /* Badges */
+    .badge {
       display: inline-flex;
       align-items: center;
-      background: #25D366;
-      color: #fff;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      text-decoration: none;
-      font-weight: 600;
       gap: 4px;
-    }
-    .btn-wa:hover { background: #1EBE5D; }
-    .badge {
-      display: inline-block;
       padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: bold;
-    }
-    .badge-transcription { background: #EFF6FC; color: #1D4ED8; }
-    .badge-recording { background: #FEF3C7; color: #92400E; }
-    .badge-success { background: #DEF7EC; color: #03543F; }
-
-    .btn-dl {
-      background: #0078D4;
-      color: #fff;
-      padding: 4px 10px;
       border-radius: 4px;
       font-size: 11.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-transcription {
+      background: var(--blue-light);
+      color: var(--blue);
+    }
+    .badge-recording {
+      background: var(--purple-light);
+      color: var(--purple);
+    }
+    .badge-success {
+      background: var(--green-light);
+      color: var(--green);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
       font-weight: 600;
+      background: var(--brand);
+      color: #FFFFFF;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { background: var(--brand-hover); }
+    .btn-secondary {
+      background: #FFFFFF;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: #F8FAFC; border-color: #CBD5E1; }
+
+    .btn-wa {
+      background: #25D366;
+      color: #FFFFFF;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 700;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      margin-left: 6px;
     }
-    .btn-dl:hover { background: #005A9E; }
+    .btn-wa:hover { background: #1EBE5D; }
+
+    .btn-dl {
+      background: #F1F5F9;
+      color: var(--brand);
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid #E2E8F0;
+      display: inline-block;
+    }
+    .btn-dl:hover { background: #E2E8F0; }
+
+    .phone-chip {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -266,7 +359,7 @@
     <div class="lock-card">
       <div class="lock-icon">🔒</div>
       <h2>LEIN Executive Dashboard</h2>
-      <p>Passcode-protected administrative system for monitoring volunteer submissions and registrations.</p>
+      <p>Passcode-protected administrative oversight for Liberian English Speech Transcription & Voice Recording initiatives.</p>
       <form onsubmit="event.preventDefault(); verifyPasscode();">
         <input type="password" id="passcodeInput" class="passcode-input" placeholder="Enter Admin Passcode" autofocus required>
         <button type="submit" class="btn" style="width: 100%; justify-content: center; padding: 12px;">
@@ -283,8 +376,8 @@
       <div class="brand">
         <div class="brand-icon">L</div>
         <div>
-          <h2 style="font-size:18px;">LEIN Volunteer Administration & Upload Tracking</h2>
-          <p style="font-size:12px; color:var(--text-muted);">Real-time monitoring across AfriSpeech volunteer repositories</p>
+          <h2 style="font-size:18px;">LEIN Executive Dashboard — Transcription & Voice Recording</h2>
+          <p style="font-size:12px; color:var(--text-muted);">Unified administration & upload tracking across Liberian English speech datasets</p>
         </div>
       </div>
       <div style="display: flex; gap: 10px;">
@@ -300,7 +393,7 @@
         📥 Uploaded Submissions (<span id="submissionsTabCount">0</span>)
       </button>
       <button class="dash-tab" id="tabRegistrationsBtn" onclick="switchTab('registrations')">
-        👥 Volunteer Registrations (<span id="registrationsTabCount">0</span>)
+        👥 Registered Volunteers (<span id="registrationsTabCount">0</span>)
       </button>
     </div>
 
@@ -310,24 +403,35 @@
         <div class="stat-card">
           <div class="stat-label">Total Submissions Received</div>
           <div class="stat-num" id="statTotalSubmissions">0</div>
+          <div class="stat-sub">Across all volunteers</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Total Data Uploaded</div>
           <div class="stat-num" id="statTotalSize">0 MB</div>
+          <div class="stat-sub">Stored in HF repository</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Active Contributing Volunteers</div>
+          <div class="stat-label">Active Contributors</div>
           <div class="stat-num" id="statUniqueVolunteers">0</div>
+          <div class="stat-sub">Unique volunteers uploaded</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Storage Target</div>
-          <div class="stat-num" style="font-size:16px; margin-top:8px;">AfriSpeech/submissions</div>
+          <div class="stat-label">Storage Repository</div>
+          <div class="stat-num" style="font-size:15px; margin-top:8px; word-break:break-all;">AfriSpeech/volunteer-submissions</div>
+          <div class="stat-sub">Live automated queue</div>
         </div>
       </div>
 
       <div class="table-card">
         <div class="table-header">
-          <span style="font-weight:700; font-size:14px;" id="submissionsCountLabel">Received Submissions (0)</span>
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <span style="font-weight:700; font-size:14px;" id="submissionsCountLabel">Received Submissions (0)</span>
+            <div class="filter-pills">
+              <button class="filter-pill active" id="subFilterAll" onclick="setSubmissionsFilter('all')">All</button>
+              <button class="filter-pill" id="subFilterTranscription" onclick="setSubmissionsFilter('transcription')">✍️ Transcription</button>
+              <button class="filter-pill" id="subFilterRecording" onclick="setSubmissionsFilter('recording')">🎙️ Recording</button>
+            </div>
+          </div>
           <input type="text" id="submissionsSearch" class="search-box" placeholder="Search volunteer, phone, filename..." oninput="filterSubmissionsTable()">
         </div>
         <div class="table-responsive">
@@ -335,13 +439,13 @@
             <thead>
               <tr>
                 <th>Date & Time</th>
+                <th>Track</th>
                 <th>Volunteer Name</th>
                 <th>Phone (WhatsApp)</th>
-                <th>Task Type</th>
-                <th>Package File</th>
+                <th>Package Archive</th>
                 <th>Size</th>
                 <th>Status</th>
-                <th>Action</th>
+                <th>Download</th>
               </tr>
             </thead>
             <tbody id="submissionsTableBody">
@@ -352,42 +456,54 @@
       </div>
     </div>
 
-    <!-- VIEW 2: VOLUNTEER REGISTRATIONS VIEW -->
+    <!-- VIEW 2: VOLUNTEER REGISTRATIONS VIEW (TRANSCRIPTION & RECORDING COMBINED) -->
     <div id="viewRegistrations" style="display: none;">
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-label">Total Volunteers Registered</div>
+          <div class="stat-label">Total Registered Volunteers</div>
           <div class="stat-num" id="statVolunteers">0</div>
+          <div class="stat-sub">Combined roster</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Committed Work Days</div>
-          <div class="stat-num" id="statDays">0 days</div>
+          <div class="stat-label">✍️ Transcription Volunteers</div>
+          <div class="stat-num" id="statTranscribers">0</div>
+          <div class="stat-sub" id="statTransHours">~0.0 hrs audio</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Committed Audio Hours</div>
-          <div class="stat-num" id="statHours">0.0 hrs</div>
+          <div class="stat-label">🎙️ Voice Recorders</div>
+          <div class="stat-num" id="statRecorders">0</div>
+          <div class="stat-sub" id="statRecHours">~0.0 hrs audio</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Package Pool Coverage</div>
-          <div class="stat-num" id="statCoverage">0 / 193</div>
+          <div class="stat-label">Total Audio Hours Committed</div>
+          <div class="stat-num" id="statTotalHours">0.0 hrs</div>
+          <div class="stat-sub">Across 1 to 5 hr bundles</div>
         </div>
       </div>
 
       <div class="table-card">
         <div class="table-header">
-          <span style="font-weight:700; font-size:14px;" id="registrationsCountLabel">Registered Volunteers (0)</span>
-          <input type="text" id="registrationsSearch" class="search-box" placeholder="Search name, email, phone..." oninput="filterRegistrationsTable()">
+          <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <span style="font-weight:700; font-size:14px;" id="registrationsCountLabel">Registered Volunteers (0)</span>
+            <div class="filter-pills">
+              <button class="filter-pill active" id="regFilterAll" onclick="setRegistrationsFilter('all')">All Volunteers</button>
+              <button class="filter-pill" id="regFilterTranscription" onclick="setRegistrationsFilter('transcription')">✍️ Transcription</button>
+              <button class="filter-pill" id="regFilterRecording" onclick="setRegistrationsFilter('recording')">🎙️ Voice Recording</button>
+            </div>
+          </div>
+          <input type="text" id="registrationsSearch" class="search-box" placeholder="Search name, email, phone, package..." oninput="filterRegistrationsTable()">
         </div>
         <div class="table-responsive">
           <table id="registrationsTable">
             <thead>
               <tr>
-                <th>Date</th>
+                <th>Registration Date</th>
+                <th>Initiative Track</th>
                 <th>Volunteer Name</th>
                 <th>Email Address</th>
                 <th>Phone (WhatsApp)</th>
                 <th>Hours</th>
-                <th>Assigned Package</th>
+                <th>Assigned Bundle Package</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -404,13 +520,16 @@
   <script>
     const PASSCODE_SHA256 = "1b402d5132842fb59bf4f81971e115b57b9fe647157c1a3c06f0e9bad65c5404";
     const SUBMISSIONS_LOG_URL = "https://huggingface.co/datasets/AfriSpeech/liberian-english-volunteer-submissions/raw/main/submissions_log.jsonl";
-    const REGISTRY_RAW_URL = "https://huggingface.co/datasets/AfriSpeech/liberian-english-volunteer-registry/raw/main/registrations_encoded.jsonl";
-    const ASSIGNMENTS_RAW_URL = "https://huggingface.co/datasets/AfriSpeech/liberian-english-volunteer-registry/raw/main/assignments.json";
+    const TRANSCRIBER_REGISTRY_URL = "https://huggingface.co/datasets/AfriSpeech/liberian-english-volunteer-registry/raw/main/registrations_encoded.jsonl";
+    const RECORDER_REGISTRY_URL = "https://huggingface.co/datasets/AfriSpeech/liberian-english-volunteer-registry/raw/main/recorder_registrations_encoded.jsonl";
     const ENCRYPTION_KEY = 0x5A;
 
     let activeTab = "submissions";
-    let submissionsData = [];
-    let registrationsData = [];
+    let currentSubFilter = "all";
+    let currentRegFilter = "all";
+
+    let rawSubmissionsList = [];
+    let rawRegistrationsList = [];
 
     window.addEventListener("DOMContentLoaded", () => {
       if (sessionStorage.getItem("lein_admin_unlocked") === "true") {
@@ -477,7 +596,9 @@
       await Promise.all([fetchSubmissions(), fetchRegistrations()]);
     }
 
-    // 1. Fetch & Render Submissions
+    // -------------------------------------------------------------
+    // 1. SUBMISSIONS LOGIC (BOTH RECORDING & TRANSCRIPTION)
+    // -------------------------------------------------------------
     async function fetchSubmissions() {
       try {
         const resp = await fetch(SUBMISSIONS_LOG_URL + "?cb=" + Date.now());
@@ -488,57 +609,83 @@
         for (const line of lines) {
           if (!line.trim()) continue;
           try {
-            parsed.push(JSON.parse(line));
+            const item = JSON.parse(line);
+            // Classify track
+            const fn = (item.filename || "").toLowerCase();
+            const tt = (item.task_type || "").toLowerCase();
+            if (tt === "recording" || fn.includes("recorder") || fn.includes("recordings")) {
+              item.track = "recording";
+            } else {
+              item.track = "transcription";
+            }
+            parsed.push(item);
           } catch (e) {}
         }
 
         parsed.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
-        submissionsData = parsed;
-        renderSubmissions(parsed);
+        rawSubmissionsList = parsed;
+        renderSubmissionsTable();
       } catch (e) {
-        console.warn("Submissions log fetch note:", e);
-        renderSubmissions([]);
+        console.warn("Submissions fetch error:", e);
+        rawSubmissionsList = [];
+        renderSubmissionsTable();
       }
     }
 
-    function renderSubmissions(list) {
-      document.getElementById("submissionsTabCount").textContent = list.length;
-      document.getElementById("submissionsCountLabel").textContent = `Received Submissions (${list.length})`;
-      document.getElementById("statTotalSubmissions").textContent = list.length;
+    function setSubmissionsFilter(filter) {
+      currentSubFilter = filter;
+      document.getElementById("subFilterAll").classList.toggle("active", filter === "all");
+      document.getElementById("subFilterTranscription").classList.toggle("active", filter === "transcription");
+      document.getElementById("subFilterRecording").classList.toggle("active", filter === "recording");
+      renderSubmissionsTable();
+    }
 
-      const totalBytes = list.reduce((acc, s) => acc + (s.size_bytes || 0), 0);
+    function renderSubmissionsTable() {
+      document.getElementById("submissionsTabCount").textContent = rawSubmissionsList.length;
+      document.getElementById("statTotalSubmissions").textContent = rawSubmissionsList.length;
+
+      const totalBytes = rawSubmissionsList.reduce((acc, s) => acc + (s.size_bytes || 0), 0);
       const totalMB = (totalBytes / (1024 * 1024)).toFixed(1);
       document.getElementById("statTotalSize").textContent = `${totalMB} MB`;
 
-      const uniqueVols = new Set(list.map(s => (s.phone || s.volunteer_name))).size;
+      const uniqueVols = new Set(rawSubmissionsList.map(s => (s.phone || s.volunteer_name))).size;
       document.getElementById("statUniqueVolunteers").textContent = uniqueVols;
+
+      const filtered = rawSubmissionsList.filter(s => {
+        if (currentSubFilter === "transcription") return s.track === "transcription";
+        if (currentSubFilter === "recording") return s.track === "recording";
+        return true;
+      });
+
+      document.getElementById("submissionsCountLabel").textContent = `Received Submissions (${filtered.length})`;
 
       const tbody = document.getElementById("submissionsTableBody");
       tbody.innerHTML = "";
 
-      if (list.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='8' style='text-align:center; padding:32px; color:#64748B;'>No volunteer submissions uploaded yet. Once packages are uploaded, they appear here live!</td></tr>";
+      if (filtered.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='8' style='text-align:center; padding:32px; color:#64748B;'>No submissions found matching filter.</td></tr>";
         return;
       }
 
-      list.forEach(s => {
+      filtered.forEach(s => {
         const tr = document.createElement("tr");
         const rawPhone = s.phone || "";
         const cleanPhone = rawPhone.replace(/[^\d+]/g, "");
         const waLink = cleanPhone ? `https://wa.me/${cleanPhone.replace('+', '')}` : "#";
         const dateStr = (s.timestamp || "").replace("T", " ").replace("Z", "");
-        const taskBadge = s.task_type === "recording"
-          ? `<span class="badge badge-recording">🎙️ Recording</span>`
+        
+        const trackBadge = s.track === "recording"
+          ? `<span class="badge badge-recording">🎙️ Voice Recording</span>`
           : `<span class="badge badge-transcription">✍️ Transcription</span>`;
 
         tr.innerHTML = `
           <td>${dateStr}</td>
+          <td>${trackBadge}</td>
           <td><b>${escapeHtml(s.volunteer_name || "Volunteer")}</b></td>
           <td>
             <span class="phone-chip">${escapeHtml(rawPhone)}</span>
             ${cleanPhone ? `<a href="${waLink}" target="_blank" class="btn-wa">💬 WhatsApp</a>` : ''}
           </td>
-          <td>${taskBadge}</td>
           <td title="${escapeHtml(s.filename)}"><code style="font-size:11.5px;">${escapeHtml(s.filename)}</code></td>
           <td>${s.size_mb ? s.size_mb + ' MB' : (s.size_bytes ? Math.round(s.size_bytes/1024) + ' KB' : '-')}</td>
           <td><span class="badge badge-success">✓ Received</span></td>
@@ -550,57 +697,99 @@
       });
     }
 
-    // 2. Fetch & Render Registrations
+    // -------------------------------------------------------------
+    // 2. REGISTRATIONS LOGIC (COMBINES BOTH TRANSCRIPTION & RECORDING)
+    // -------------------------------------------------------------
     async function fetchRegistrations() {
       try {
-        const resp = await fetch(REGISTRY_RAW_URL + "?cb=" + Date.now());
-        const text = await resp.text();
-        const lines = text.split("\n");
-        const parsed = [];
+        const combined = [];
 
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          const rec = decodeRecord(line);
-          if (rec && rec.name) parsed.push(rec);
+        // Fetch Transcription Volunteers
+        try {
+          const respT = await fetch(TRANSCRIBER_REGISTRY_URL + "?cb=" + Date.now());
+          const textT = await respT.text();
+          for (const line of textT.split("\n")) {
+            if (!line.trim()) continue;
+            const rec = decodeRecord(line);
+            if (rec && rec.name) {
+              rec.track = "transcription";
+              combined.push(rec);
+            }
+          }
+        } catch (e) {
+          console.warn("Transcription registry fetch error:", e);
         }
 
-        parsed.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
-        registrationsData = parsed;
-
-        let counts = {};
+        // Fetch Recording Volunteers
         try {
-          const aResp = await fetch(ASSIGNMENTS_RAW_URL + "?cb=" + Date.now());
-          counts = await aResp.json();
-        } catch (e) {}
+          const respR = await fetch(RECORDER_REGISTRY_URL + "?cb=" + Date.now());
+          const textR = await respR.text();
+          for (const line of textR.split("\n")) {
+            if (!line.trim()) continue;
+            const rec = decodeRecord(line);
+            if (rec && rec.name) {
+              rec.track = "recording";
+              combined.push(rec);
+            }
+          }
+        } catch (e) {
+          console.warn("Recorder registry fetch error:", e);
+        }
 
-        renderRegistrations(parsed, counts);
+        combined.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
+        rawRegistrationsList = combined;
+        renderRegistrationsTable();
       } catch (e) {
-        console.warn("Registry fetch note:", e);
+        console.warn("Registrations fetch error:", e);
+        rawRegistrationsList = [];
+        renderRegistrationsTable();
       }
     }
 
-    function renderRegistrations(list, counts) {
-      document.getElementById("registrationsTabCount").textContent = list.length;
-      document.getElementById("registrationsCountLabel").textContent = `Registered Volunteers (${list.length})`;
-      document.getElementById("statVolunteers").textContent = list.length;
+    function setRegistrationsFilter(filter) {
+      currentRegFilter = filter;
+      document.getElementById("regFilterAll").classList.toggle("active", filter === "all");
+      document.getElementById("regFilterTranscription").classList.toggle("active", filter === "transcription");
+      document.getElementById("regFilterRecording").classList.toggle("active", filter === "recording");
+      renderRegistrationsTable();
+    }
 
-      const totalDays = list.reduce((acc, r) => acc + (r.days || 0), 0);
-      const totalHours = list.reduce((acc, r) => acc + (r.hours || r.est_hours || 0), 0);
-      document.getElementById("statDays").textContent = `${totalDays} days`;
-      document.getElementById("statHours").textContent = `~${totalHours.toFixed(1)} hrs`;
+    function renderRegistrationsTable() {
+      document.getElementById("registrationsTabCount").textContent = rawRegistrationsList.length;
+      document.getElementById("statVolunteers").textContent = rawRegistrationsList.length;
 
-      const assignedOnce = Object.values(counts).filter(c => c >= 1).length;
-      document.getElementById("statCoverage").textContent = `${assignedOnce} / 193`;
+      const transcribers = rawRegistrationsList.filter(r => r.track === "transcription");
+      const recorders = rawRegistrationsList.filter(r => r.track === "recording");
+
+      const transHours = transcribers.reduce((acc, r) => acc + (r.hours || r.est_hours || 0), 0);
+      const recHours = recorders.reduce((acc, r) => acc + (r.hours || r.est_hours || 0), 0);
+      const totalHours = transHours + recHours;
+
+      document.getElementById("statTranscribers").textContent = transcribers.length;
+      document.getElementById("statTransHours").textContent = `~${transHours.toFixed(1)} hrs audio`;
+
+      document.getElementById("statRecorders").textContent = recorders.length;
+      document.getElementById("statRecHours").textContent = `~${recHours.toFixed(1)} hrs audio`;
+
+      document.getElementById("statTotalHours").textContent = `${totalHours.toFixed(1)} hrs`;
+
+      const filtered = rawRegistrationsList.filter(r => {
+        if (currentRegFilter === "transcription") return r.track === "transcription";
+        if (currentRegFilter === "recording") return r.track === "recording";
+        return true;
+      });
+
+      document.getElementById("registrationsCountLabel").textContent = `Registered Volunteers (${filtered.length})`;
 
       const tbody = document.getElementById("registrationsTableBody");
       tbody.innerHTML = "";
 
-      if (list.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:32px; color:#64748B;'>No volunteer registrations recorded yet.</td></tr>";
+      if (filtered.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='8' style='text-align:center; padding:32px; color:#64748B;'>No volunteer registrations found matching filter.</td></tr>";
         return;
       }
 
-      list.forEach(r => {
+      filtered.forEach(r => {
         const tr = document.createElement("tr");
         const rawPhone = r.raw_phone || r.phone || "";
         const cleanPhone = (r.phone || "").replace(/[^\d+]/g, "");
@@ -608,15 +797,20 @@
         const dateStr = (r.timestamp || "").split("T")[0];
         const isCancelled = r.status === "cancelled";
 
+        const trackBadge = r.track === "recording"
+          ? `<span class="badge badge-recording">🎙️ Voice Recording</span>`
+          : `<span class="badge badge-transcription">✍️ Transcription</span>`;
+
         tr.innerHTML = `
           <td>${dateStr}</td>
+          <td>${trackBadge}</td>
           <td><b>${escapeHtml(r.name)}</b></td>
-          <td><a href="mailto:${escapeHtml(r.email)}">${escapeHtml(r.email)}</a></td>
+          <td><a href="mailto:${escapeHtml(r.email)}" style="color:var(--accent); text-decoration:none;">${escapeHtml(r.email)}</a></td>
           <td>
             <span class="phone-chip">${escapeHtml(rawPhone)}</span>
             ${cleanPhone ? `<a href="${waLink}" target="_blank" class="btn-wa">💬 WhatsApp</a>` : ''}
           </td>
-          <td>${r.hours || (r.days ? r.days + ' Days' : '-')}</td>
+          <td><b>${r.hours || 1} hrs</b></td>
           <td><code style="font-size:11.5px;">${escapeHtml(r.bundle_file || "-")}</code></td>
           <td>
             ${isCancelled 
@@ -628,6 +822,9 @@
       });
     }
 
+    // -------------------------------------------------------------
+    // SEARCH FILTERS
+    // -------------------------------------------------------------
     function filterSubmissionsTable() {
       const q = document.getElementById("submissionsSearch").value.toLowerCase();
       const rows = document.querySelectorAll("#submissionsTableBody tr");
@@ -644,37 +841,60 @@
       });
     }
 
+    // -------------------------------------------------------------
+    // CSV EXPORT
+    // -------------------------------------------------------------
     function exportActiveTableCSV() {
       if (activeTab === "submissions") {
-        if (submissionsData.length === 0) { alert("No submissions to export."); return; }
-        const keys = ["timestamp", "volunteer_name", "phone", "email", "task_type", "filename", "size_bytes", "download_url"];
-        exportCSV(`lein_submissions_${new Date().toISOString().split("T")[0]}.csv`, submissionsData, keys);
+        if (rawSubmissionsList.length === 0) { alert("No submissions to export."); return; }
+        const headers = ["Timestamp", "Track", "Volunteer Name", "Phone", "Package Filename", "Size MB", "Download URL"];
+        const rows = rawSubmissionsList.map(s => [
+          s.timestamp || "",
+          s.track || "",
+          `"${(s.volunteer_name || "").replace(/"/g, '""')}"`,
+          `"${(s.phone || "").replace(/"/g, '""')}"`,
+          `"${(s.filename || "").replace(/"/g, '""')}"`,
+          s.size_mb || "",
+          s.download_url || ""
+        ]);
+        downloadCSV("LEIN_Submissions_Export.csv", headers, rows);
       } else {
-        if (registrationsData.length === 0) { alert("No registrations to export."); return; }
-        const keys = ["timestamp", "name", "email", "phone", "hours", "bundle_file", "status"];
-        exportCSV(`lein_volunteers_${new Date().toISOString().split("T")[0]}.csv`, registrationsData, keys);
+        if (rawRegistrationsList.length === 0) { alert("No volunteer registrations to export."); return; }
+        const headers = ["Timestamp", "Track", "Name", "Email", "Phone", "Committed Hours", "Bundle Package", "Status"];
+        const rows = rawRegistrationsList.map(r => [
+          r.timestamp || "",
+          r.track || "",
+          `"${(r.name || "").replace(/"/g, '""')}"`,
+          `"${(r.email || "").replace(/"/g, '""')}"`,
+          `"${(r.raw_phone || r.phone || "").replace(/"/g, '""')}"`,
+          r.hours || 1,
+          `"${(r.bundle_file || "").replace(/"/g, '""')}"`,
+          r.status || "active"
+        ]);
+        downloadCSV("LEIN_Volunteers_Roster_Export.csv", headers, rows);
       }
     }
 
-    function exportCSV(filename, list, keys) {
-      let csvContent = "\uFEFF" + keys.join(",") + "\n";
-      list.forEach(item => {
-        const line = keys.map(k => `"${(item[k] || '').toString().replace(/"/g, '""')}"`).join(",");
-        csvContent += line + "\n";
-      });
+    function downloadCSV(filename, headers, rows) {
+      let csvContent = headers.join(",") + "\n";
+      rows.forEach(r => { csvContent += r.join(",") + "\n"; });
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
 
     function escapeHtml(str) {
       if (!str) return "";
-      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
   </script>
 </body>
