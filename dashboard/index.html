@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LEIN Volunteer Dashboard (Passcode Protected)</title>
+  <title>LEIN Executive Dashboard — Uploads & Volunteers</title>
+  <link rel="icon" href="https://leinhub.org/lein-badge.png" type="image/png">
   <style>
     :root {
       --primary: #107C41;
@@ -13,6 +14,7 @@
       --border: #E2E8F0;
       --text: #0F172A;
       --text-muted: #64748B;
+      --accent: #2563EB;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -43,21 +45,9 @@
       box-shadow: 0 20px 40px rgba(0,0,0,0.25);
       text-align: center;
     }
-    .lock-icon {
-      font-size: 42px;
-      margin-bottom: 12px;
-    }
-    .lock-card h2 {
-      font-size: 18px;
-      font-weight: 700;
-      color: #0F172A;
-      margin-bottom: 6px;
-    }
-    .lock-card p {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 20px;
-    }
+    .lock-icon { font-size: 42px; margin-bottom: 12px; }
+    .lock-card h2 { font-size: 18px; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
+    .lock-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
     .passcode-input {
       width: 100%;
       padding: 12px;
@@ -69,23 +59,15 @@
       outline: none;
       margin-bottom: 14px;
     }
-    .passcode-input:focus {
-      border-color: var(--primary);
-    }
-    .lock-error {
-      color: #DC2626;
-      font-size: 12px;
-      font-weight: 600;
-      margin-top: 8px;
-      display: none;
-    }
+    .passcode-input:focus { border-color: var(--primary); }
+    .lock-error { color: #DC2626; font-size: 12px; font-weight: 600; margin-top: 8px; display: none; }
 
     /* Main Dashboard Header */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
       gap: 14px;
     }
@@ -110,7 +92,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 9px 16px;
+      padding: 8px 16px;
       background: var(--primary);
       color: #fff;
       border-radius: 6px;
@@ -128,6 +110,35 @@
       border: 1px solid var(--border);
     }
     .btn-secondary:hover { background: #F1F5F9; }
+
+    /* Top Tabs */
+    .dashboard-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 2px;
+    }
+    .dash-tab {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: -2px;
+      transition: all 0.15s ease;
+    }
+    .dash-tab:hover { color: var(--text); }
+    .dash-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
 
     /* Stats Grid */
     .stats-grid {
@@ -180,12 +191,8 @@
       width: 280px;
       outline: none;
     }
-    input.search-box:focus {
-      border-color: var(--primary);
-    }
-    .table-responsive {
-      overflow-x: auto;
-    }
+    input.search-box:focus { border-color: var(--primary); }
+    .table-responsive { overflow-x: auto; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -226,24 +233,30 @@
       gap: 4px;
     }
     .btn-wa:hover { background: #1EBE5D; }
-    .days-badge {
-      background: #E0F2FE;
-      color: #0369A1;
+    .badge {
+      display: inline-block;
       padding: 3px 8px;
       border-radius: 12px;
       font-size: 11px;
       font-weight: bold;
     }
-    .pkg-chip {
-      background: #F1F5F9;
-      color: #475569;
-      padding: 2px 6px;
+    .badge-transcription { background: #EFF6FC; color: #1D4ED8; }
+    .badge-recording { background: #FEF3C7; color: #92400E; }
+    .badge-success { background: #DEF7EC; color: #03543F; }
+
+    .btn-dl {
+      background: #0078D4;
+      color: #fff;
+      padding: 4px 10px;
       border-radius: 4px;
-      font-size: 11px;
-      font-family: monospace;
-      display: inline-block;
-      margin: 1px;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
+    .btn-dl:hover { background: #005A9E; }
   </style>
 </head>
 <body>
@@ -253,9 +266,9 @@
     <div class="lock-card">
       <div class="lock-icon">🔒</div>
       <h2>LEIN Executive Dashboard</h2>
-      <p>This dashboard is passcode-protected. Enter the administrator passcode to unlock volunteer registration records.</p>
+      <p>Passcode-protected administrative system for monitoring volunteer submissions and registrations.</p>
       <form onsubmit="event.preventDefault(); verifyPasscode();">
-        <input type="password" id="passcodeInput" class="passcode-input" placeholder="Enter Passcode" autofocus required>
+        <input type="password" id="passcodeInput" class="passcode-input" placeholder="Enter Admin Passcode" autofocus required>
         <button type="submit" class="btn" style="width: 100%; justify-content: center; padding: 12px;">
           Unlock Dashboard
         </button>
@@ -264,94 +277,151 @@
     </div>
   </div>
 
-  <!-- Main Executive Dashboard Content (Hidden until unlocked) -->
+  <!-- Dashboard Main Content (Hidden until unlocked) -->
   <div id="dashboardContent" style="display: none;">
     <div class="header">
       <div class="brand">
         <div class="brand-icon">L</div>
         <div>
-          <h2 style="font-size:18px;">LEIN Volunteer Registration Dashboard</h2>
-          <p style="font-size:12px; color:var(--text-muted);">Decoded registry records from AfriSpeech/liberian-english-volunteer-registry</p>
+          <h2 style="font-size:18px;">LEIN Volunteer Administration & Upload Tracking</h2>
+          <p style="font-size:12px; color:var(--text-muted);">Real-time monitoring across AfriSpeech volunteer repositories</p>
         </div>
       </div>
       <div style="display: flex; gap: 10px;">
-        <button class="btn btn-secondary" onclick="fetchAndRenderData()">🔄 Refresh</button>
-        <button class="btn" onclick="exportCSV()">📥 Download Volunteers (.CSV)</button>
+        <button class="btn btn-secondary" onclick="fetchAndRenderAll()">🔄 Refresh</button>
+        <button class="btn" id="exportBtn" onclick="exportActiveTableCSV()">📥 Export Active View (.CSV)</button>
         <button class="btn btn-secondary" onclick="lockDashboard()" title="Lock dashboard">🔒 Lock</button>
       </div>
     </div>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">Total Volunteers</div>
-        <div class="stat-num" id="statVolunteers">0</div>
+    <!-- Navigation Tabs: Submissions vs Registrations -->
+    <div class="dashboard-tabs">
+      <button class="dash-tab active" id="tabSubmissionsBtn" onclick="switchTab('submissions')">
+        📥 Uploaded Submissions (<span id="submissionsTabCount">0</span>)
+      </button>
+      <button class="dash-tab" id="tabRegistrationsBtn" onclick="switchTab('registrations')">
+        👥 Volunteer Registrations (<span id="registrationsTabCount">0</span>)
+      </button>
+    </div>
+
+    <!-- VIEW 1: UPLOADED SUBMISSIONS VIEW -->
+    <div id="viewSubmissions">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Submissions Received</div>
+          <div class="stat-num" id="statTotalSubmissions">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Data Uploaded</div>
+          <div class="stat-num" id="statTotalSize">0 MB</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Contributing Volunteers</div>
+          <div class="stat-num" id="statUniqueVolunteers">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Storage Target</div>
+          <div class="stat-num" style="font-size:16px; margin-top:8px;">AfriSpeech/submissions</div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Committed Work Days</div>
-        <div class="stat-num" id="statDays">0 days</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Committed Audio</div>
-        <div class="stat-num" id="statHours">0.0 hrs</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Total Compensation ($5/hr)</div>
-        <div class="stat-num" id="statCompensation">$0.00</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Package Pool Coverage</div>
-        <div class="stat-num" id="statCoverage">0 / 193</div>
-        <div style="font-size:11px; color:var(--text-muted); margin-top:2px;" id="statRepeats">(2x: 0)</div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <span style="font-weight:700; font-size:14px;" id="submissionsCountLabel">Received Submissions (0)</span>
+          <input type="text" id="submissionsSearch" class="search-box" placeholder="Search volunteer, phone, filename..." oninput="filterSubmissionsTable()">
+        </div>
+        <div class="table-responsive">
+          <table id="submissionsTable">
+            <thead>
+              <tr>
+                <th>Date & Time</th>
+                <th>Volunteer Name</th>
+                <th>Phone (WhatsApp)</th>
+                <th>Task Type</th>
+                <th>Package File</th>
+                <th>Size</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="submissionsTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <div class="table-card">
-      <div class="table-header">
-        <span style="font-weight:700; font-size:14px;" id="tableCountLabel">Volunteers (0)</span>
-        <input type="text" id="searchBox" class="search-box" placeholder="Search name, email, phone..." oninput="filterTable()">
+    <!-- VIEW 2: VOLUNTEER REGISTRATIONS VIEW -->
+    <div id="viewRegistrations" style="display: none;">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Volunteers Registered</div>
+          <div class="stat-num" id="statVolunteers">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Committed Work Days</div>
+          <div class="stat-num" id="statDays">0 days</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Committed Audio Hours</div>
+          <div class="stat-num" id="statHours">0.0 hrs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Package Pool Coverage</div>
+          <div class="stat-num" id="statCoverage">0 / 193</div>
+        </div>
       </div>
-      <div class="table-responsive">
-        <table id="volTable">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Volunteer Name</th>
-              <th>Email Address</th>
-              <th>Phone (WhatsApp)</th>
-              <th>Commitment</th>
-              <th>Est. Payout ($)</th>
-              <th>Assigned Day Batches</th>
-              <th>Volunteer Code</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody">
-            <!-- Dynamic rows rendered here -->
-          </tbody>
-        </table>
+
+      <div class="table-card">
+        <div class="table-header">
+          <span style="font-weight:700; font-size:14px;" id="registrationsCountLabel">Registered Volunteers (0)</span>
+          <input type="text" id="registrationsSearch" class="search-box" placeholder="Search name, email, phone..." oninput="filterRegistrationsTable()">
+        </div>
+        <div class="table-responsive">
+          <table id="registrationsTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Volunteer Name</th>
+                <th>Email Address</th>
+                <th>Phone (WhatsApp)</th>
+                <th>Hours</th>
+                <th>Assigned Package</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="registrationsTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+
   </div>
 
   <script>
-    // Administrator Passcode
     const PASSCODE_SHA256 = "1b402d5132842fb59bf4f81971e115b57b9fe647157c1a3c06f0e9bad65c5404";
-
-    async function sha256(str) {
-      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
-      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-    }
+    const SUBMISSIONS_LOG_URL = "https://huggingface.co/datasets/AfriSpeech/liberian-english-volunteer-submissions/raw/main/submissions_log.jsonl";
     const REGISTRY_RAW_URL = "https://huggingface.co/datasets/AfriSpeech/liberian-english-volunteer-registry/raw/main/registrations_encoded.jsonl";
     const ASSIGNMENTS_RAW_URL = "https://huggingface.co/datasets/AfriSpeech/liberian-english-volunteer-registry/raw/main/assignments.json";
     const ENCRYPTION_KEY = 0x5A;
 
-    let volunteerRecords = [];
+    let activeTab = "submissions";
+    let submissionsData = [];
+    let registrationsData = [];
 
-    // Check if previously unlocked in this browser session
     window.addEventListener("DOMContentLoaded", () => {
       if (sessionStorage.getItem("lein_admin_unlocked") === "true") {
         unlockDashboard();
       }
     });
+
+    async function sha256(str) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
     async function verifyPasscode() {
       const entered = document.getElementById("passcodeInput").value.trim();
@@ -369,7 +439,7 @@
     function unlockDashboard() {
       document.getElementById("lockScreen").style.display = "none";
       document.getElementById("dashboardContent").style.display = "block";
-      fetchAndRenderData();
+      fetchAndRenderAll();
     }
 
     function lockDashboard() {
@@ -378,6 +448,14 @@
       document.getElementById("lockScreen").style.display = "flex";
       document.getElementById("passcodeInput").value = "";
       document.getElementById("lockError").style.display = "none";
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      document.getElementById("tabSubmissionsBtn").classList.toggle("active", tab === "submissions");
+      document.getElementById("tabRegistrationsBtn").classList.toggle("active", tab === "registrations");
+      document.getElementById("viewSubmissions").style.display = tab === "submissions" ? "block" : "none";
+      document.getElementById("viewRegistrations").style.display = tab === "registrations" ? "block" : "none";
     }
 
     function decodeRecord(b64Str) {
@@ -395,10 +473,87 @@
       }
     }
 
-    async function fetchAndRenderData() {
+    async function fetchAndRenderAll() {
+      await Promise.all([fetchSubmissions(), fetchRegistrations()]);
+    }
+
+    // 1. Fetch & Render Submissions
+    async function fetchSubmissions() {
       try {
-        // Fetch encoded lines from dataset repo
-        const resp = await fetch(REGISTRY_RAW_URL + "?cache_bust=" + Date.now());
+        const resp = await fetch(SUBMISSIONS_LOG_URL + "?cb=" + Date.now());
+        const text = await resp.text();
+        const lines = text.split("\n");
+        const parsed = [];
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            parsed.push(JSON.parse(line));
+          } catch (e) {}
+        }
+
+        parsed.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
+        submissionsData = parsed;
+        renderSubmissions(parsed);
+      } catch (e) {
+        console.warn("Submissions log fetch note:", e);
+        renderSubmissions([]);
+      }
+    }
+
+    function renderSubmissions(list) {
+      document.getElementById("submissionsTabCount").textContent = list.length;
+      document.getElementById("submissionsCountLabel").textContent = `Received Submissions (${list.length})`;
+      document.getElementById("statTotalSubmissions").textContent = list.length;
+
+      const totalBytes = list.reduce((acc, s) => acc + (s.size_bytes || 0), 0);
+      const totalMB = (totalBytes / (1024 * 1024)).toFixed(1);
+      document.getElementById("statTotalSize").textContent = `${totalMB} MB`;
+
+      const uniqueVols = new Set(list.map(s => (s.phone || s.volunteer_name))).size;
+      document.getElementById("statUniqueVolunteers").textContent = uniqueVols;
+
+      const tbody = document.getElementById("submissionsTableBody");
+      tbody.innerHTML = "";
+
+      if (list.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='8' style='text-align:center; padding:32px; color:#64748B;'>No volunteer submissions uploaded yet. Once packages are uploaded, they appear here live!</td></tr>";
+        return;
+      }
+
+      list.forEach(s => {
+        const tr = document.createElement("tr");
+        const rawPhone = s.phone || "";
+        const cleanPhone = rawPhone.replace(/[^\d+]/g, "");
+        const waLink = cleanPhone ? `https://wa.me/${cleanPhone.replace('+', '')}` : "#";
+        const dateStr = (s.timestamp || "").replace("T", " ").replace("Z", "");
+        const taskBadge = s.task_type === "recording"
+          ? `<span class="badge badge-recording">🎙️ Recording</span>`
+          : `<span class="badge badge-transcription">✍️ Transcription</span>`;
+
+        tr.innerHTML = `
+          <td>${dateStr}</td>
+          <td><b>${escapeHtml(s.volunteer_name || "Volunteer")}</b></td>
+          <td>
+            <span class="phone-chip">${escapeHtml(rawPhone)}</span>
+            ${cleanPhone ? `<a href="${waLink}" target="_blank" class="btn-wa">💬 WhatsApp</a>` : ''}
+          </td>
+          <td>${taskBadge}</td>
+          <td title="${escapeHtml(s.filename)}"><code style="font-size:11.5px;">${escapeHtml(s.filename)}</code></td>
+          <td>${s.size_mb ? s.size_mb + ' MB' : (s.size_bytes ? Math.round(s.size_bytes/1024) + ' KB' : '-')}</td>
+          <td><span class="badge badge-success">✓ Received</span></td>
+          <td>
+            <a href="${s.download_url}" target="_blank" class="btn-dl">⬇️ Download (.ZIP)</a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 2. Fetch & Render Registrations
+    async function fetchRegistrations() {
+      try {
+        const resp = await fetch(REGISTRY_RAW_URL + "?cb=" + Date.now());
         const text = await resp.text();
         const lines = text.split("\n");
         const parsed = [];
@@ -406,71 +561,52 @@
         for (const line of lines) {
           if (!line.trim()) continue;
           const rec = decodeRecord(line);
-          if (rec && rec.name) {
-            parsed.push(rec);
-          }
+          if (rec && rec.name) parsed.push(rec);
         }
 
-        // Sort newest first
         parsed.sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
-        volunteerRecords = parsed;
+        registrationsData = parsed;
 
-        // Fetch assignment counts
-        let assignmentCounts = {};
+        let counts = {};
         try {
-          const aResp = await fetch(ASSIGNMENTS_RAW_URL + "?cache_bust=" + Date.now());
-          assignmentCounts = await aResp.json();
+          const aResp = await fetch(ASSIGNMENTS_RAW_URL + "?cb=" + Date.now());
+          counts = await aResp.json();
         } catch (e) {}
 
-        renderStats(parsed, assignmentCounts);
-        renderTable(parsed);
-      } catch (err) {
-        console.error(err);
-        alert("Error loading registration data from registry: " + err.message);
+        renderRegistrations(parsed, counts);
+      } catch (e) {
+        console.warn("Registry fetch note:", e);
       }
     }
 
-    function renderStats(records, counts) {
-      const totalVols = records.length;
-      const totalDays = records.reduce((acc, r) => acc + (r.days || 0), 0);
-      const totalHours = records.reduce((acc, r) => acc + (r.est_hours || 0), 0);
-      const totalComp = records.reduce((acc, r) => acc + (r.est_compensation_usd || 0), 0);
+    function renderRegistrations(list, counts) {
+      document.getElementById("registrationsTabCount").textContent = list.length;
+      document.getElementById("registrationsCountLabel").textContent = `Registered Volunteers (${list.length})`;
+      document.getElementById("statVolunteers").textContent = list.length;
 
-      document.getElementById("statVolunteers").textContent = totalVols;
+      const totalDays = list.reduce((acc, r) => acc + (r.days || 0), 0);
+      const totalHours = list.reduce((acc, r) => acc + (r.hours || r.est_hours || 0), 0);
       document.getElementById("statDays").textContent = `${totalDays} days`;
       document.getElementById("statHours").textContent = `~${totalHours.toFixed(1)} hrs`;
-      document.getElementById("statCompensation").textContent = `$${totalComp.toFixed(2)}`;
-      document.getElementById("tableCountLabel").textContent = `Registered Volunteers (${totalVols})`;
 
       const assignedOnce = Object.values(counts).filter(c => c >= 1).length;
-      const assignedTwice = Object.values(counts).filter(c => c >= 2).length;
       document.getElementById("statCoverage").textContent = `${assignedOnce} / 193`;
-      document.getElementById("statRepeats").textContent = `(2x assigned: ${assignedTwice})`;
-    }
 
-    function renderTable(records) {
-      const tbody = document.getElementById("tableBody");
+      const tbody = document.getElementById("registrationsTableBody");
       tbody.innerHTML = "";
 
-      if (records.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='8' style='text-align:center; padding:30px; color:#64748B;'>No volunteer registrations yet. Once people sign up on the portal, they will appear here live!</td></tr>";
+      if (list.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:32px; color:#64748B;'>No volunteer registrations recorded yet.</td></tr>";
         return;
       }
 
-      records.forEach(r => {
+      list.forEach(r => {
         const tr = document.createElement("tr");
-        const rawPhone = r.phone || "";
-        const cleanPhone = rawPhone.replace(/[^\d+]/g, "");
+        const rawPhone = r.raw_phone || r.phone || "";
+        const cleanPhone = (r.phone || "").replace(/[^\d+]/g, "");
         const waLink = cleanPhone ? `https://wa.me/${cleanPhone.replace('+', '')}` : "#";
-
-        const pkgs = r.assigned_packages || [];
-        const pkgsHtml = Array.isArray(pkgs)
-          ? pkgs.map(p => `<span class="pkg-chip">${p.replace('.zip', '')}</span>`).join(" ")
-          : pkgs;
-
-        const dateStr = (r.timestamp || "").split("T")[0] || r.timestamp;
-        const code = r.volunteer_code || "";
-        const shortCode = code.length > 20 ? code.slice(0, 18) + "..." : code;
+        const dateStr = (r.timestamp || "").split("T")[0];
+        const isCancelled = r.status === "cancelled";
 
         tr.innerHTML = `
           <td>${dateStr}</td>
@@ -478,50 +614,62 @@
           <td><a href="mailto:${escapeHtml(r.email)}">${escapeHtml(r.email)}</a></td>
           <td>
             <span class="phone-chip">${escapeHtml(rawPhone)}</span>
-            <a href="${waLink}" target="_blank" class="btn-wa">💬 WhatsApp</a>
+            ${cleanPhone ? `<a href="${waLink}" target="_blank" class="btn-wa">💬 WhatsApp</a>` : ''}
           </td>
-          <td><span class="days-badge">${r.days} Days (~${r.est_hours}h)</span></td>
-          <td><b style="color:var(--primary);">$${(r.est_compensation_usd || 0).toFixed(2)}</b></td>
-          <td>${pkgsHtml}</td>
-          <td title="${escapeHtml(code)}"><code style="font-size:11px;">${escapeHtml(shortCode)}</code></td>
+          <td>${r.hours || (r.days ? r.days + ' Days' : '-')}</td>
+          <td><code style="font-size:11.5px;">${escapeHtml(r.bundle_file || "-")}</code></td>
+          <td>
+            ${isCancelled 
+              ? `<span class="badge" style="background:#FEE2E2; color:#991B1B;">Cancelled</span>`
+              : `<span class="badge badge-success">Active</span>`}
+          </td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    function filterTable() {
-      const query = document.getElementById("searchBox").value.toLowerCase();
-      const rows = document.querySelectorAll("#volTable tbody tr");
+    function filterSubmissionsTable() {
+      const q = document.getElementById("submissionsSearch").value.toLowerCase();
+      const rows = document.querySelectorAll("#submissionsTableBody tr");
       rows.forEach(r => {
-        const text = r.textContent.toLowerCase();
-        r.style.display = text.includes(query) ? "" : "none";
+        r.style.display = r.textContent.toLowerCase().includes(q) ? "" : "none";
       });
     }
 
-    function exportCSV() {
-      if (volunteerRecords.length === 0) {
-        alert("No records to export.");
-        return;
+    function filterRegistrationsTable() {
+      const q = document.getElementById("registrationsSearch").value.toLowerCase();
+      const rows = document.querySelectorAll("#registrationsTableBody tr");
+      rows.forEach(r => {
+        r.style.display = r.textContent.toLowerCase().includes(q) ? "" : "none";
+      });
+    }
+
+    function exportActiveTableCSV() {
+      if (activeTab === "submissions") {
+        if (submissionsData.length === 0) { alert("No submissions to export."); return; }
+        const keys = ["timestamp", "volunteer_name", "phone", "email", "task_type", "filename", "size_bytes", "download_url"];
+        exportCSV(`lein_submissions_${new Date().toISOString().split("T")[0]}.csv`, submissionsData, keys);
+      } else {
+        if (registrationsData.length === 0) { alert("No registrations to export."); return; }
+        const keys = ["timestamp", "name", "email", "phone", "hours", "bundle_file", "status"];
+        exportCSV(`lein_volunteers_${new Date().toISOString().split("T")[0]}.csv`, registrationsData, keys);
       }
-      const keys = ["timestamp", "name", "email", "phone", "days", "est_hours", "est_compensation_usd", "assigned_packages", "volunteer_code"];
+    }
+
+    function exportCSV(filename, list, keys) {
       let csvContent = "\uFEFF" + keys.join(",") + "\n";
-      volunteerRecords.forEach(r => {
-        const line = keys.map(k => {
-          let val = r[k] || "";
-          if (Array.isArray(val)) val = val.join("; ");
-          return `"${String(val).replace(/"/g, '""')}"`;
-        }).join(",");
+      list.forEach(item => {
+        const line = keys.map(k => `"${(item[k] || '').toString().replace(/"/g, '""')}"`).join(",");
         csvContent += line + "\n";
       });
-
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `lein_volunteers_${new Date().toISOString().split("T")[0]}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
 
     function escapeHtml(str) {
