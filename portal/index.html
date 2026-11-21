@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Volunteer Registration — Speech AI</title>
+  <title>LEIN Speech Transcription Registration — Voice AI Initiative</title>
+  <link rel="icon" href="https://leinhub.org/lein-badge.png" type="image/png">
   <style>
     :root {
       --bg: #FFFFFF;
@@ -54,12 +55,7 @@
       color: inherit;
     }
 
-    .brand-logo {
-      width: 34px;
-      height: 34px;
-      object-fit: contain;
-      border-radius: 8px;
-    }
+    .brand-logo { width: 36px !important; height: 36px !important; max-width: 36px !important; max-height: 36px !important; object-fit: contain !important; border-radius: 8px !important; flex-shrink: 0 !important; }
 
     .brand-title {
       font-size: 16px;
@@ -389,10 +385,10 @@
 
   <!-- Minimal Top Nav -->
   <nav>
-    <div style="display:flex; align-items:center;">
-      <div style="background:#0F172A; color:#FFFFFF; width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:17px; margin-right:12px;">🎙️</div>
-      <span class="brand-title">Speech AI Initiative</span>
-    </div>
+    <a href="https://leinhub.org" class="brand-link" target="_blank">
+      <img src="https://leinhub.org/lein-badge.png" alt="LEIN Logo" class="brand-logo" style="width:36px; height:36px; max-width:36px; max-height:36px; object-fit:contain; border-radius:8px; flex-shrink:0;">
+      <span class="brand-title">Liberian English AI Initiative</span>
+    </a>
     <div class="nav-links">
       <a href="https://huggingface.co/datasets/AfriSpeech/liberian-english-speech-packages" class="nav-link" target="_blank">Dataset</a>
       <a href="mailto:info@africancaribbeannetwork.org" class="nav-link">Contact</a>
@@ -406,10 +402,10 @@
       <!-- Left Column: Context, Mission, Value Props, Support -->
       <div class="left-col">
         <div>
-          <span class="badge-pill">Community Speech Data</span>
-          <h1 style="margin-top: 12px; margin-bottom: 14px;">Help build Liberia's voice AI</h1>
+          <span class="badge-pill">Speech Audio Transcription & Review</span>
+          <h1 style="margin-top: 12px; margin-bottom: 14px;">Transcribe authentic Liberian speech</h1>
           <p class="hero-lead">
-            Review everyday speech clips, verify spoken words, and earn an official recommendation letter. The transcription app runs 100% offline on any laptop with zero complex setup.
+            Listen to broadcast and community audio in Liberian English, verify what is spoken, and correct automated transcripts offline on your laptop. Earn an official LEIN recommendation letter and unlock future paid AI opportunities.
           </p>
         </div>
 
@@ -418,8 +414,8 @@
           <div class="perk-card">
             <div class="perk-icon-wrap">📜</div>
             <div>
-              <div class="perk-heading">Official Recommendation Letter</div>
-              <div class="perk-desc">Receive an official signed professional recommendation letter from project leadership to elevate your academic and employment CV.</div>
+              <div class="perk-heading">Official LEIN Recommendation Letter</div>
+              <div class="perk-desc">Receive an official signed professional recommendation letter from LEIN leadership to elevate your academic and employment CV.</div>
             </div>
           </div>
 
@@ -434,8 +430,8 @@
           <div class="perk-card">
             <div class="perk-icon-wrap">💻</div>
             <div>
-              <div class="perk-heading">100% Offline Transcriber</div>
-              <div class="perk-desc">Zero internet needed while working. Double-click <code>index.html</code> on any laptop to transcribe at your own pace.</div>
+              <div class="perk-heading">100% Offline Transcriber Studio</div>
+              <div class="perk-desc">Zero internet needed while working. Single-clip focus, 3s countdown auto-replay, and instant validation in any web browser. Zero software installation.</div>
             </div>
           </div>
         </div>
@@ -451,13 +447,13 @@
 
       <!-- Returning Volunteer Banner -->
       <div class="returning-user-box" id="welcomeBackBox">
-        Welcome back, <b id="welcomeBackName">Volunteer</b>. Your audio package download is ready below.
+        Welcome back, <b id="welcomeBackName">Volunteer</b>. Your transcription package download is ready below.
       </div>
 
       <!-- Registration Form View -->
       <div id="formSection">
-        <div class="card-title">Volunteer Registration</div>
-        <div class="card-subtitle">Enter your details to receive your assigned audio package.</div>
+        <div class="card-title">Transcriber Registration</div>
+        <div class="card-subtitle">Enter your details to receive your assigned transcription package.</div>
 
         <div class="form-group">
           <label for="fullName">Full Name</label>
@@ -535,9 +531,7 @@
   </main>
 
   <!-- Footer -->
-  <footer>
-    Speech AI Initiative × African & Caribbean Network
-  </footer>
+  <footer>Liberian English AI Initiative (LEIN) × African & Caribbean Network • Building Liberia's Sovereign Voice AI</footer>
 
   <script>
     const PACKAGES_REPO = "AfriSpeech/liberian-english-speech-packages";
@@ -562,7 +556,7 @@
     });
 
     function checkExistingSession() {
-      const raw = localStorage.getItem("speech_volunteer_session");
+      const raw = localStorage.getItem("lein_volunteer_session");
       if (!raw) return;
       try {
         const session = JSON.parse(raw);
@@ -651,7 +645,7 @@
           bundle: chosenBundle,
           ts: Math.floor(Date.now() / 1000)
         };
-        const volunteerCode = "VOL-" + encodeRecord(payload);
+        const volunteerCode = "LEIN-" + encodeRecord(payload);
 
         const regRecord = {
           name: name,
@@ -706,7 +700,7 @@
         });
 
         currentSessionData = regRecord;
-        localStorage.setItem("speech_volunteer_session", JSON.stringify(regRecord));
+        localStorage.setItem("lein_volunteer_session", JSON.stringify(regRecord));
 
         document.getElementById("welcomeSuccessName").textContent = name;
         renderResultsUI(rawPhone, chosenBundle, hours);
