@@ -13,9 +13,12 @@ admin_credentials.txt
 
 # LEIN Leadership Guides & Posters
 LEIN_*.docx
+LEIN_*
 *Operational_Guide*
 *Recruitment_Poster*
 *.docx
+qr_code_recording.png
+*_page-*.png
 
 # Generated packages, caches & artifacts
 generated_packages/
