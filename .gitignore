@@ -18,6 +18,7 @@ LEIN_*
 *Recruitment_Poster*
 *.docx
 qr_code_recording.png
+qr_code_transcription.png
 *_page-*.png
 
 # Generated packages, caches & artifacts
