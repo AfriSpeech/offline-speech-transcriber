@@ -483,6 +483,13 @@
           <div class="hint">Transcribe at your own pace offline. Maximum 5 hours per volunteer.</div>
         </div>
 
+        <div class="consent-group" style="margin: 16px 0 20px 0; display: flex; align-items: flex-start; gap: 10px;">
+          <input type="checkbox" id="consentCheck" style="margin-top: 3px; width: 17px; height: 17px; cursor: pointer; accent-color: var(--primary);" required>
+          <label for="consentCheck" style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; cursor: pointer;">
+            I consent to the collection and processing of my contact information (name, email, and WhatsApp number) for project coordination, community support, and volunteer verification under the LEIN Speech AI Project.
+          </label>
+        </div>
+
         <button class="btn-submit" id="submitBtn" onclick="registerVolunteer()">
           Register
         </button>
@@ -612,6 +619,12 @@
         return;
       }
 
+      const consent = document.getElementById("consentCheck").checked;
+      if (!consent) {
+        alert("Please check the consent box to confirm agreement before proceeding.");
+        return;
+      }
+
       const cleanPhone = normalizeLiberianPhone(rawPhone);
       const btn = document.getElementById("submitBtn");
       btn.textContent = "Registering...";
@@ -620,7 +633,7 @@
       try {
         let assignments = {};
         try {
-          const aResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/assignments.json?cb=` + Date.now());
+          const aResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/assignments.json?cb=` + Date.now(), { headers: { "Authorization": "Bearer " + _T } });
           assignments = await aResp.json();
         } catch (e) {}
 
@@ -643,6 +656,7 @@
           phone: cleanPhone,
           hours: hours,
           bundle: chosenBundle,
+          consent: true,
           ts: Math.floor(Date.now() / 1000)
         };
         const volunteerCode = "LEIN-" + encodeRecord(payload);
@@ -656,13 +670,14 @@
           volunteer_code: volunteerCode,
           bundle_file: chosenBundle,
           status: "active",
+          consent_given: true,
           timestamp: new Date().toISOString()
         };
 
         const encodedLine = encodeRecord(regRecord) + "\n";
         let curText = "";
         try {
-          const rResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/registrations_encoded.jsonl?cb=` + Date.now());
+          const rResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/registrations_encoded.jsonl?cb=` + Date.now(), { headers: { "Authorization": "Bearer " + _T } });
           curText = await rResp.text();
         } catch (e) {}
 
@@ -733,7 +748,7 @@
       try {
         let assignments = {};
         try {
-          const aResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/assignments.json?cb=` + Date.now());
+          const aResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/assignments.json?cb=` + Date.now(), { headers: { "Authorization": "Bearer " + _T } });
           assignments = await aResp.json();
         } catch (e) {}
 
@@ -751,7 +766,7 @@
 
         let curText = "";
         try {
-          const rResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/registrations_encoded.jsonl?cb=` + Date.now());
+          const rResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/registrations_encoded.jsonl?cb=` + Date.now(), { headers: { "Authorization": "Bearer " + _T } });
           curText = await rResp.text();
         } catch (e) {}
 
