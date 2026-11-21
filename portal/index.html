@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Volunteer Registration — LEIN Speech AI</title>
-  <link rel="icon" href="https://leinhub.org/lein-badge.png" type="image/png">
+  <title>Volunteer Registration — Speech AI</title>
   <style>
     :root {
       --bg: #FFFFFF;
@@ -390,10 +389,10 @@
 
   <!-- Minimal Top Nav -->
   <nav>
-    <a href="https://leinhub.org" class="brand-link" target="_blank">
-      <img src="https://leinhub.org/lein-badge.png" alt="LEIN Logo" class="brand-logo">
-      <span class="brand-title">Liberian English AI Initiative</span>
-    </a>
+    <div style="display:flex; align-items:center;">
+      <div style="background:#0F172A; color:#FFFFFF; width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:17px; margin-right:12px;">🎙️</div>
+      <span class="brand-title">Speech AI Initiative</span>
+    </div>
     <div class="nav-links">
       <a href="https://huggingface.co/datasets/AfriSpeech/liberian-english-speech-packages" class="nav-link" target="_blank">Dataset</a>
       <a href="mailto:info@africancaribbeannetwork.org" class="nav-link">Contact</a>
@@ -419,8 +418,8 @@
           <div class="perk-card">
             <div class="perk-icon-wrap">📜</div>
             <div>
-              <div class="perk-heading">Official LEIN Recommendation Letter</div>
-              <div class="perk-desc">Receive an official signed professional recommendation letter from LEIN leadership to elevate your academic and employment CV.</div>
+              <div class="perk-heading">Official Recommendation Letter</div>
+              <div class="perk-desc">Receive an official signed professional recommendation letter from project leadership to elevate your academic and employment CV.</div>
             </div>
           </div>
 
@@ -537,7 +536,7 @@
 
   <!-- Footer -->
   <footer>
-    Liberian English AI Initiative (LEIN) × African & Caribbean Network
+    Speech AI Initiative × African & Caribbean Network
   </footer>
 
   <script>
@@ -563,7 +562,7 @@
     });
 
     function checkExistingSession() {
-      const raw = localStorage.getItem("lein_volunteer_session");
+      const raw = localStorage.getItem("speech_volunteer_session");
       if (!raw) return;
       try {
         const session = JSON.parse(raw);
@@ -652,7 +651,7 @@
           bundle: chosenBundle,
           ts: Math.floor(Date.now() / 1000)
         };
-        const volunteerCode = "LEIN-" + encodeRecord(payload);
+        const volunteerCode = "VOL-" + encodeRecord(payload);
 
         const regRecord = {
           name: name,
@@ -707,7 +706,7 @@
         });
 
         currentSessionData = regRecord;
-        localStorage.setItem("lein_volunteer_session", JSON.stringify(regRecord));
+        localStorage.setItem("speech_volunteer_session", JSON.stringify(regRecord));
 
         document.getElementById("welcomeSuccessName").textContent = name;
         renderResultsUI(rawPhone, chosenBundle, hours);
