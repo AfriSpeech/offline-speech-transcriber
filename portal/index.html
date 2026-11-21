@@ -543,8 +543,9 @@
   <script>
     const PACKAGES_REPO = "AfriSpeech/liberian-english-speech-packages";
     const REGISTRY_REPO = "AfriSpeech/liberian-english-volunteer-registry";
-    const BASE_BUNDLE_URL = `https://huggingface.co/datasets/${PACKAGES_REPO}/resolve/main/bundles`;
+    const BASE_PACKAGES_URL = `https://huggingface.co/datasets/${PACKAGES_REPO}/resolve/main/packages`;
     const ENCRYPTION_KEY = 0x5A;
+    const SESSION_KEY = "lein_volunteer_session";
 
     const _T = (function() {
       const b64 = "VFpjWEZvb1N/f3pXU0p/W09vdnZvW0pMWGVaZlBfW3BmWnJ4Wg==";
@@ -563,16 +564,18 @@
     });
 
     function checkExistingSession() {
-      const raw = localStorage.getItem("lein_volunteer_session");
+      const raw = localStorage.getItem(SESSION_KEY);
       if (!raw) return;
       try {
         const session = JSON.parse(raw);
-        if (session && session.name) {
+        if (session && session.name && session.status !== "cancelled") {
           currentSessionData = session;
           displayReturningUser(session);
+        } else {
+          localStorage.removeItem(SESSION_KEY);
         }
       } catch (e) {
-        console.warn("Session restore error", e);
+        localStorage.removeItem(SESSION_KEY);
       }
     }
 
@@ -596,13 +599,22 @@
       return "+231" + digits;
     }
 
+    function utf8ToBase64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let bin = "";
+      for (let i = 0; i < bytes.length; i++) {
+        bin += String.fromCharCode(bytes[i]);
+      }
+      return btoa(bin);
+    }
+
     function encodeRecord(obj) {
       const jsonStr = JSON.stringify(obj);
       let masked = "";
       for (let i = 0; i < jsonStr.length; i++) {
         masked += String.fromCharCode(jsonStr.charCodeAt(i) ^ ENCRYPTION_KEY);
       }
-      return btoa(unescape(encodeURIComponent(masked)))
+      return utf8ToBase64(masked)
         .replace(/\+/g, '-')
         .replace(/\//g, '_')
         .replace(/=+$/, '');
@@ -630,16 +642,17 @@
       btn.textContent = "Registering...";
       btn.disabled = true;
 
-      let chosenBundle = `volunteer_${String(Math.floor(Math.random() * 20) + 1).padStart(2, '0')}_${hours}hrs.zip`;
+      // 1. Initial bundle assignment fallback
+      const vNum = Math.floor(Math.random() * 20) + 1;
+      let chosenBundle = `volunteer_${String(vNum).padStart(2, '0')}_${hours}hrs.zip`;
 
+      // 2. Query assignments for least-assigned pool
+      let assignments = {};
       try {
-        let assignments = {};
-        try {
-          const aResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/assignments.json?cb=` + Date.now(), { headers: { "Authorization": "Bearer " + _T } });
-          if (aResp.ok) {
-            assignments = await aResp.json();
-          }
-        } catch (e) {}
+        const aResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/assignments.json?cb=` + Date.now(), {
+          headers: { "Authorization": "Bearer " + _T }
+        });
+        if (aResp.ok) assignments = await aResp.json();
 
         const candidatePools = [];
         for (let v = 1; v <= 20; v++) {
@@ -648,54 +661,62 @@
           const count = assignments[bundleSlug] || 0;
           candidatePools.push({ slug: bundleSlug, count: count });
         }
-
         candidatePools.sort((a, b) => a.count - b.count);
         if (candidatePools.length > 0 && candidatePools[0].slug) {
           chosenBundle = candidatePools[0].slug;
         }
+      } catch (e) {
+        console.warn("Assignments balance notice:", e);
+      }
 
-        assignments[chosenBundle] = (assignments[chosenBundle] || 0) + 1;
+      assignments[chosenBundle] = (assignments[chosenBundle] || 0) + 1;
 
-        // IMMEDIATELY render download UI with real URL so user is never stuck
-        document.getElementById("welcomeSuccessName").textContent = name;
-        renderResultsUI(rawPhone, chosenBundle, hours);
+      const payload = {
+        name: name,
+        email: email,
+        phone: cleanPhone,
+        hours: hours,
+        bundle: chosenBundle,
+        consent: true,
+        ts: Math.floor(Date.now() / 1000)
+      };
+      const volunteerCode = "LEIN-" + encodeRecord(payload);
 
-        const payload = {
-          name: name,
-          email: email,
-          phone: cleanPhone,
-          hours: hours,
-          bundle: chosenBundle,
-          consent: true,
-          ts: Math.floor(Date.now() / 1000)
-        };
-        const volunteerCode = "LEIN-" + encodeRecord(payload);
+      const regRecord = {
+        name: name,
+        email: email,
+        phone: cleanPhone,
+        raw_phone: rawPhone,
+        hours: hours,
+        volunteer_code: volunteerCode,
+        bundle_file: chosenBundle,
+        status: "active",
+        consent_given: true,
+        timestamp: new Date().toISOString()
+      };
 
-        const regRecord = {
-          name: name,
-          email: email,
-          phone: cleanPhone,
-          raw_phone: rawPhone,
-          hours: hours,
-          volunteer_code: volunteerCode,
-          bundle_file: chosenBundle,
-          status: "active",
-          consent_given: true,
-          timestamp: new Date().toISOString()
-        };
+      // 3. IMMEDIATELY SAVE LOCAL SESSION SO REFRESH & CANCEL ALWAYS WORK!
+      currentSessionData = regRecord;
+      try {
+        localStorage.setItem(SESSION_KEY, JSON.stringify(regRecord));
+      } catch (e) {}
 
-        currentSessionData = regRecord;
-        localStorage.setItem("lein_volunteer_session", JSON.stringify(regRecord));
+      // 4. IMMEDIATELY RENDER RESULTS UI & POPULATE DOWNLOAD URL!
+      document.getElementById("welcomeSuccessName").textContent = name;
+      renderResultsUI(rawPhone, chosenBundle, hours);
+      btn.textContent = "Offline Package Ready";
 
-        const encodedLine = encodeRecord(regRecord) + "\n";
+      // 5. COMMIT REGISTRATION TO HUGGING FACE IN THE BACKGROUND
+      try {
         let curText = "";
         try {
-          const rResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/registrations_encoded.jsonl?cb=` + Date.now(), { headers: { "Authorization": "Bearer " + _T } });
-          if (rResp.ok) {
-            curText = await rResp.text();
-          }
+          const rResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/registrations_encoded.jsonl?cb=` + Date.now(), {
+            headers: { "Authorization": "Bearer " + _T }
+          });
+          if (rResp.ok) curText = await rResp.text();
         } catch (e) {}
 
+        const encodedLine = encodeRecord(regRecord) + "\n";
         const newText = curText + encodedLine;
 
         const commitPayload = {
@@ -705,7 +726,7 @@
               key: "file",
               value: {
                 path: "registrations_encoded.jsonl",
-                content: btoa(unescape(encodeURIComponent(newText))),
+                content: utf8ToBase64(newText),
                 encoding: "base64"
               }
             },
@@ -713,7 +734,7 @@
               key: "file",
               value: {
                 path: "assignments.json",
-                content: btoa(unescape(encodeURIComponent(JSON.stringify(assignments, null, 2)))),
+                content: utf8ToBase64(JSON.stringify(assignments, null, 2)),
                 encoding: "base64"
               }
             }
@@ -728,101 +749,113 @@
           },
           body: JSON.stringify(commitPayload)
         });
-
       } catch (err) {
-        console.warn("Background registry commit notice:", err);
-        // Ensure UI is definitely rendered with assigned bundle
-        document.getElementById("welcomeSuccessName").textContent = name;
-        renderResultsUI(rawPhone, chosenBundle, hours);
+        console.warn("Background commit notice:", err);
       }
     }
 
     function renderResultsUI(rawPhone, bundleFile, hours) {
-      document.getElementById("bundleTitle").textContent = `${hours}-Hour Offline Package (${bundleFile})`;
-      
-      const downloadUrl = `${BASE_BUNDLE_URL}/${bundleFile}`;
+      const bFile = bundleFile || `volunteer_01_${hours || 3}hrs.zip`;
+      document.getElementById("bundleTitle").textContent = `${hours || 3}-Hour Transcription Package (${bFile})`;
+      const volMatch = bFile.match(/volunteer_(\d+)/);
+      const volFolder = volMatch ? `volunteer_${volMatch[1]}` : "volunteer_01";
+      const downloadUrl = `${BASE_PACKAGES_URL}/${volFolder}/bundle_${bFile}`;
       const dlLink = document.getElementById("bundleDownloadLink");
       dlLink.href = downloadUrl;
+      dlLink.setAttribute("download", `bundle_${bFile}`);
 
       document.getElementById("formSection").style.display = "none";
       document.getElementById("resultSection").style.display = "block";
     }
 
     async function cancelCommitment() {
-      if (!currentSessionData) return;
+      // 1. Recover session if in-memory variable was cleared
+      if (!currentSessionData) {
+        const raw = localStorage.getItem(SESSION_KEY);
+        if (raw) {
+          try { currentSessionData = JSON.parse(raw); } catch (e) {}
+        }
+      }
 
-      const ok = confirm("Are you sure you want to cancel your registration?");
+      const ok = confirm("Are you sure you want to cancel your volunteer registration?\n\nYour assigned package will be returned to the pool for other volunteers.");
       if (!ok) return;
 
-      try {
-        let assignments = {};
+      const sessionToCancel = currentSessionData;
+
+      // 2. IMMEDIATELY WIPE LOCAL STORAGE & ALERT USER
+      localStorage.removeItem(SESSION_KEY);
+      currentSessionData = null;
+
+      // 3. BACKGROUND REGISTRY COMMUTATION
+      if (sessionToCancel) {
         try {
-          const aResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/assignments.json?cb=` + Date.now(), { headers: { "Authorization": "Bearer " + _T } });
-          assignments = await aResp.json();
-        } catch (e) {}
+          let assignments = {};
+          try {
+            const aResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/assignments.json?cb=` + Date.now(), {
+              headers: { "Authorization": "Bearer " + _T }
+            });
+            if (aResp.ok) assignments = await aResp.json();
+          } catch (e) {}
 
-        const bundle = currentSessionData.bundle_file;
-        if (assignments[bundle] && assignments[bundle] > 0) {
-          assignments[bundle] -= 1;
-        }
+          const bundle = sessionToCancel.bundle_file;
+          if (assignments[bundle] && assignments[bundle] > 0) {
+            assignments[bundle] -= 1;
+          }
 
-        const cancelRecord = {
-          ...currentSessionData,
-          status: "cancelled",
-          cancelled_at: new Date().toISOString()
-        };
-        const encodedLine = encodeRecord(cancelRecord) + "\n";
+          const cancelRecord = {
+            ...sessionToCancel,
+            status: "cancelled",
+            cancelled_at: new Date().toISOString()
+          };
+          const encodedLine = encodeRecord(cancelRecord) + "\n";
 
-        let curText = "";
-        try {
-          const rResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/registrations_encoded.jsonl?cb=` + Date.now(), { headers: { "Authorization": "Bearer " + _T } });
-          curText = await rResp.text();
-        } catch (e) {}
+          let curText = "";
+          try {
+            const rResp = await fetch(`https://huggingface.co/datasets/${REGISTRY_REPO}/raw/main/registrations_encoded.jsonl?cb=` + Date.now(), {
+              headers: { "Authorization": "Bearer " + _T }
+            });
+            if (rResp.ok) curText = await rResp.text();
+          } catch (e) {}
 
-        const newText = curText + encodedLine;
+          const newText = curText + encodedLine;
 
-        const commitPayload = {
-          summary: `Cancel registration: ${currentSessionData.name} (released ${bundle})`,
-          operations: [
-            {
-              key: "file",
-              value: {
-                path: "registrations_encoded.jsonl",
-                content: btoa(unescape(encodeURIComponent(newText))),
-                encoding: "base64"
+          const commitPayload = {
+            summary: `Cancel volunteer registration: ${sessionToCancel.name} (released ${bundle})`,
+            operations: [
+              {
+                key: "file",
+                value: {
+                  path: "registrations_encoded.jsonl",
+                  content: utf8ToBase64(newText),
+                  encoding: "base64"
+                }
+              },
+              {
+                key: "file",
+                value: {
+                  path: "assignments.json",
+                  content: utf8ToBase64(JSON.stringify(assignments, null, 2)),
+                  encoding: "base64"
+                }
               }
+            ]
+          };
+
+          await fetch(`https://huggingface.co/api/datasets/${REGISTRY_REPO}/commit/main`, {
+            method: "POST",
+            headers: {
+              "Authorization": "Bearer " + _T,
+              "Content-Type": "application/json"
             },
-            {
-              key: "file",
-              value: {
-                path: "assignments.json",
-                content: btoa(unescape(encodeURIComponent(JSON.stringify(assignments, null, 2)))),
-                encoding: "base64"
-              }
-            }
-          ]
-        };
-
-        await fetch(`https://huggingface.co/api/datasets/${REGISTRY_REPO}/commit/main`, {
-          method: "POST",
-          headers: {
-            "Authorization": "Bearer " + _T,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(commitPayload)
-        });
-
-        localStorage.removeItem("lein_volunteer_session");
-        currentSessionData = null;
-
-        alert("Your registration has been cancelled.");
-        location.reload();
-
-      } catch (err) {
-        console.error(err);
-        localStorage.removeItem("lein_volunteer_session");
-        location.reload();
+            body: JSON.stringify(commitPayload)
+          });
+        } catch (err) {
+          console.warn("Background cancel commit notice:", err);
+        }
       }
+
+      alert("Your registration has been successfully cancelled. The registration form will now reset.");
+      location.reload();
     }
   </script>
 </body>
